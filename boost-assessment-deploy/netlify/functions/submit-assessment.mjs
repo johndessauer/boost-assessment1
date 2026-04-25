@@ -8,7 +8,7 @@ export default async (req) => {
   const { contact, paymentIntent, rankings, ratings, context } = body
 
   // ── Verify payment ──────────────────────────────────────────────────────────
-  const stripe = new Stripe(Netlify.env.get('STRIPE_SECRET_KEY'))
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
   try {
     const session = await stripe.checkout.sessions.retrieve(paymentIntent)
     if (session.payment_status !== 'paid') {
@@ -132,7 +132,7 @@ Write in a warm, direct, professional tone. Be specific to their profile, scores
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': Netlify.env.get('ANTHROPIC_API_KEY'),
+      'x-api-key': process.env.ANTHROPIC_API_KEY,
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
@@ -168,7 +168,7 @@ Book your strategy call at: https://realwiseacademy.com`
 // ── Send respondent email via Email Octopus transactional ─────────────────────
 async function sendRespondentEmail(contact, reportText, data) {
   const { personality, boostScores, program, primaryGap, topStrength } = data
-  const apiKey = Netlify.env.get('EMAIL_OCTOPUS_API_KEY')
+  const apiKey = process.env.EMAIL_OCTOPUS_API_KEY
 
   const scoreRows = Object.values(boostScores).map(s =>
     `<tr><td style="padding:8px 12px;border-bottom:1px solid #eee;font-weight:600">${s.pillarLetter} — ${s.pillar}</td><td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;font-weight:700;color:${s.status==='Strength'?'#1A7A4A':s.status==='Developing'?'#C8922A':'#E4181B'}">${s.score}</td><td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;color:${s.status==='Strength'?'#1A7A4A':s.status==='Developing'?'#C8922A':'#E4181B'}">${s.status}</td></tr>`
@@ -269,8 +269,8 @@ async function sendRespondentEmail(contact, reportText, data) {
 // ── Send owner notification email ─────────────────────────────────────────────
 async function sendOwnerEmail(contact, data) {
   const { personality, boostScores, program, primaryGap, topStrength, context } = data
-  const apiKey = Netlify.env.get('EMAIL_OCTOPUS_API_KEY')
-  const ownerEmail = Netlify.env.get('OWNER_EMAIL')
+  const apiKey = process.env.EMAIL_OCTOPUS_API_KEY
+  const ownerEmail = process.env.OWNER_EMAIL
 
   const phone = contact.phone
   const telLink = `tel:${phone.replace(/\D/g, '')}`
@@ -343,8 +343,8 @@ async function sendOwnerEmail(contact, data) {
 
 // ── Tag respondent in Email Octopus ──────────────────────────────────────────
 async function tagEmailOctopus(contact, personality, primaryGap, program) {
-  const apiKey = Netlify.env.get('EMAIL_OCTOPUS_API_KEY')
-  const listId = Netlify.env.get('EMAIL_OCTOPUS_LIST_ID')
+  const apiKey = process.env.EMAIL_OCTOPUS_API_KEY
+  const listId = process.env.EMAIL_OCTOPUS_LIST_ID
 
   try {
     await fetch(`https://emailoctopus.com/api/1.6/lists/${listId}/contacts`, {

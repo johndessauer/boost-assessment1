@@ -3,8 +3,8 @@ export default async (req) => {
 
   const { fullName, email, phone } = await req.json()
 
-  const apiKey = Netlify.env.get('EMAIL_OCTOPUS_API_KEY')
-  const listId = Netlify.env.get('EMAIL_OCTOPUS_LIST_ID')
+  const apiKey = process.env.EMAIL_OCTOPUS_API_KEY
+  const listId = process.env.EMAIL_OCTOPUS_LIST_ID
 
   try {
     await fetch(`https://emailoctopus.com/api/1.6/lists/${listId}/contacts`, {

@@ -4,7 +4,7 @@ export default async (req) => {
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 })
 
   const { contact, promoCode } = await req.json()
-  const stripe = new Stripe(Netlify.env.get('STRIPE_SECRET_KEY'))
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
   const baseUrl = req.headers.get('origin') || 'https://realwiseacademy.com'
 
