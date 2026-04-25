@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import { Header, StepIndicator, styles, colors } from '../styles.jsx'
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
+const stripePromise = loadStripe('pk_live_51KGmaCD3UPBMwUPOTfRaCtroBU0OpQeVtMfquZka3G5ndteJ13p8nXDF8opRqOipWAlm8qYL1lhZ6JxbHlHglEmp00D88R9JXo')
 
 export default function PaymentGate({ contact, onSuccess }) {
   const [loading, setLoading] = useState(false)
