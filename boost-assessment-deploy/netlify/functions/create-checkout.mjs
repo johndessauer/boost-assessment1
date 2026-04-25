@@ -1,5 +1,3 @@
-Here it is — copy everything between the lines:
-
 export default async (req) => {
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 })
