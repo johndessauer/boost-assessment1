@@ -3,13 +3,19 @@
   publish = "dist"
   functions = "netlify/functions"
 
+[functions]
+  node_bundler = "esbuild"
+
+[functions."submit-assessment"]
+  timeout = 26
+
 [[redirects]]
-  from = "/assessment"
-  to = "/index.html"
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
   status = 200
 
 [[redirects]]
-  from = "/assessment/*"
+  from = "/*"
   to = "/index.html"
   status = 200
 
