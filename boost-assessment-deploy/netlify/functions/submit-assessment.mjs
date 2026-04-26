@@ -44,7 +44,6 @@ function getProgramRecommendation(boostScores, context) {
   return '1-Hour Consulting'
 }
 
-// ── Main handler ──────────────────────────────────────────────────────────────
 export default async (req) => {
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 })
 
@@ -58,7 +57,6 @@ export default async (req) => {
   console.log('Assessment received for:', contact?.email)
   console.log('Rankings count:', rankings?.length, 'Ratings keys:', Object.keys(ratings || {}))
 
-  // Verify payment
   const stripeKey = process.env.STRIPE_SECRET_KEY
   if (stripeKey && paymentIntent) {
     try {
@@ -72,7 +70,6 @@ export default async (req) => {
     } catch (err) { console.error('Payment error:', err.message) }
   }
 
-  // Score
   const personality = calculatePersonalityProfile(rankings)
   const boostScores = calculateBoostScores(ratings)
   const program = getProgramRecommendation(boostScores, context)
@@ -81,7 +78,6 @@ export default async (req) => {
   const topStrength = scoreEntries.reduce((a, b) => a.score > b.score ? a : b)
   console.log('Profile:', personality.primaryProfile.name, '| Gap:', primaryGap.pillar, '| Program:', program)
 
-  // Generate report
   let reportText = ''
   try {
     const prompt = `Write a personalized BOOST Blueprint Sales Assessment Report for ${contact.fullName}.\n\nProfile: ${personality.primaryProfile.name} (${personality.primaryProfile.style}) primary, ${personality.secondaryProfile.name} secondary\nIndustry: ${context.industry || 'Sales'} | Role: ${context.role || 'Sales Professional'}\nScores: ${Object.values(boostScores).map(s => `${s.pillar}: ${s.score} (${s.status})`).join(', ')}\nTop Strength: ${topStrength.pillar} (${topStrength.score}) | Gap: ${primaryGap.pillar} (${primaryGap.score})\nProgram: ${program}\n\nProfiles: Purple=Warm/Relational, Gold=Analytical, Blue=Visionary/Creative, Red=Driver/Results\n\nWrite 7 sections (2-3 paragraphs each):\nSECTION 1 — YOUR COLOR PROFILE\nSECTION 2 — YOUR BOOST SCORE DASHBOARD\nSECTION 3 — WHERE YOUR WIRING MEETS YOUR SKILL GAP\nSECTION 4 — THE BOOST BLUEPRINT\nSECTION 5 — YOUR PERSONALIZED PLAYBOOK\nSECTION 6 — YOUR PROGRAM RECOMMENDATION\nSECTION 7 — YOUR NEXT STEP (CTA to book at RealWiseAcademy.com)`
@@ -101,32 +97,29 @@ export default async (req) => {
     reportText = `BOOST Blueprint Report for ${contact.fullName}\n\nProfile: ${personality.primaryProfile.name} | Gap: ${primaryGap.pillar} | Program: ${program}\n\nBook your strategy call: https://realwiseacademy.com`
   }
 
-  // Send respondent email
   try {
     const scoreRows = Object.values(boostScores).map(s => `<tr><td style="padding:8px 12px;border-bottom:1px solid #eee;font-weight:600">${s.pillar}</td><td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;font-weight:700;color:${s.status==='Strength'?'#1A7A4A':s.status==='Developing'?'#C8922A':'#E4181B'}">${s.score}</td><td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;color:${s.status==='Strength'?'#1A7A4A':s.status==='Developing'?'#C8922A':'#E4181B'}">${s.status}</td></tr>`).join('')
     const reportHtml = reportText.split('\n').map(l => l.startsWith('SECTION') ? `<h3 style="color:#E4181B;margin:20px 0 8px">${l}</h3>` : l.trim() ? `<p style="margin:0 0 10px;line-height:1.7">${l}</p>` : '<br>').join('')
     const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f8f8f8;font-family:Arial,sans-serif"><div style="max-width:680px;margin:0 auto;background:#fff"><div style="background:#1A1A1A;padding:24px 32px"><h1 style="color:#fff;margin:0">THE BOOST BLUEPRINT</h1><p style="color:#999;margin:4px 0 0;font-size:14px">Sales Assessment Report — RealWise Academy</p></div><div style="background:#E4181B;padding:16px 32px"><h2 style="color:#fff;margin:0">Your Report is Ready, ${contact.fullName.split(' ')[0]}!</h2></div><div style="padding:24px 32px;background:#f8f8f8"><table width="100%" cellpadding="0" cellspacing="6"><tr><td style="background:#6B3FA0;border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">PRIMARY</div><div style="font-size:16px;font-weight:800">${personality.primaryProfile.name}</div></td><td style="width:6px"></td><td style="background:#C8922A;border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">SECONDARY</div><div style="font-size:16px;font-weight:800">${personality.secondaryProfile.name}</div></td><td style="width:6px"></td><td style="background:#1A7A4A;border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">TOP STRENGTH</div><div style="font-size:14px;font-weight:800">${topStrength.pillar} (${topStrength.score})</div></td><td style="width:6px"></td><td style="background:#E4181B;border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">PRIMARY GAP</div><div style="font-size:14px;font-weight:800">${primaryGap.pillar} (${primaryGap.score})</div></td></tr></table></div><div style="padding:0 32px 24px"><table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:8px;overflow:hidden"><tr style="background:#1A1A1A"><th style="padding:10px 12px;color:#fff;text-align:left">Pillar</th><th style="padding:10px 12px;color:#fff;text-align:center">Score</th><th style="padding:10px 12px;color:#fff;text-align:center">Status</th></tr>${scoreRows}</table></div><div style="padding:0 32px 32px;font-size:15px;color:#1A1A1A">${reportHtml}</div><div style="margin:0 32px 32px;background:#1A1A1A;border-radius:12px;padding:28px 32px;text-align:center"><h3 style="color:#fff;margin:0 0 8px">Ready to Build on This?</h3><p style="color:#999;font-size:14px;margin:0 0 20px">Book a complimentary 30-minute Strategy Call with John Dessauer.</p><a href="https://realwiseacademy.com/#programs" style="display:inline-block;background:#E4181B;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700">Book Your Strategy Call →</a></div><div style="padding:20px 32px;border-top:1px solid #eee;text-align:center"><p style="font-size:12px;color:#999;margin:0">© 2026 Dessauer Group II LLC | RealWise Academy</p></div></div></body></html>`
-    const res = await fetch('https://emailoctopus.com/api/1.6/campaigns/transactional', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ api_key: process.env.EMAIL_OCTOPUS_API_KEY, to: [{ email_address: contact.email, fields: { FirstName: contact.fullName.split(' ')[0] } }], from: { name: 'John Dessauer | RealWise Academy', email_address: 'john@thedessauergroup.com' }, subject: `Your BOOST Blueprint Report is Ready, ${contact.fullName.split(' ')[0]}!`, content: { html } }),
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.RESEND_API_KEY}` },
+      body: JSON.stringify({ from: 'John Dessauer | RealWise Academy <onboarding@resend.dev>', to: [contact.email], subject: `Your BOOST Blueprint Report is Ready, ${contact.fullName.split(' ')[0]}!`, html }),
     })
     const emailResult = await res.json()
     console.log('Respondent email:', JSON.stringify(emailResult).substring(0, 200))
   } catch (err) { console.error('Respondent email error:', err.message) }
 
-  // Send owner email
   try {
     const telLink = `tel:${contact.phone.replace(/\D/g, '')}`
     const ownerHtml = `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px"><div style="background:#1A1A1A;padding:20px;border-radius:8px 8px 0 0"><h2 style="color:#fff;margin:0">🎯 New Assessment — ${contact.fullName}</h2></div><div style="background:#E4181B;padding:12px 20px"><h3 style="color:#fff;margin:0">${personality.primaryProfile.name}/${personality.secondaryProfile.name} | Gap: ${primaryGap.pillar} (${primaryGap.score})</h3></div><div style="border:1px solid #eee;border-top:none;padding:20px;border-radius:0 0 8px 8px"><table cellpadding="6" cellspacing="0" width="100%"><tr><td style="font-weight:600;width:130px">Name:</td><td>${contact.fullName}</td></tr><tr><td style="font-weight:600">Email:</td><td><a href="mailto:${contact.email}" style="color:#E4181B">${contact.email}</a></td></tr><tr><td style="font-weight:600">Phone:</td><td><a href="${telLink}" style="color:#E4181B;font-size:18px;font-weight:700">📞 ${contact.phone}</a></td></tr><tr><td style="font-weight:600">Industry:</td><td>${context.industry||'N/A'}</td></tr><tr><td style="font-weight:600">Role:</td><td>${context.role||'N/A'}</td></tr><tr><td style="font-weight:600">Gap:</td><td style="color:#E4181B;font-weight:700">${primaryGap.pillar} (${primaryGap.score})</td></tr><tr><td style="font-weight:600">Program:</td><td><strong>${program}</strong></td></tr></table><div style="margin-top:20px;text-align:center"><a href="${telLink}" style="display:inline-block;background:#E4181B;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-size:18px">📞 Call ${contact.fullName.split(' ')[0]} Now</a></div></div></body></html>`
-    const res = await fetch('https://emailoctopus.com/api/1.6/campaigns/transactional', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ api_key: process.env.EMAIL_OCTOPUS_API_KEY, to: [{ email_address: process.env.OWNER_EMAIL }], from: { name: 'BOOST Assessment System', email_address: 'john@thedessauergroup.com' }, subject: `🎯 New: ${contact.fullName} — ${personality.primaryProfile.name} | Gap: ${primaryGap.pillar}`, content: { html: ownerHtml } }),
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.RESEND_API_KEY}` },
+      body: JSON.stringify({ from: 'BOOST Assessment <onboarding@resend.dev>', to: [process.env.OWNER_EMAIL], subject: `🎯 New: ${contact.fullName} — ${personality.primaryProfile.name} | Gap: ${primaryGap.pillar}`, html: ownerHtml }),
     })
     const ownerResult = await res.json()
     console.log('Owner email:', JSON.stringify(ownerResult).substring(0, 200))
   } catch (err) { console.error('Owner email error:', err.message) }
 
-  // Tag Email Octopus
   try {
     await fetch(`https://emailoctopus.com/api/1.6/lists/${process.env.EMAIL_OCTOPUS_LIST_ID}/contacts`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -137,4 +130,3 @@ export default async (req) => {
 
   return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } })
 }
-
