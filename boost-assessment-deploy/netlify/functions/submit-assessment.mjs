@@ -44,6 +44,10 @@ function getProgramRecommendation(boostScores, context) {
   return '1-Hour Consulting'
 }
 
+function profileColor(key) {
+  return key === 'A' ? '#6B3FA0' : key === 'B' ? '#C8922A' : key === 'C' ? '#1A6FB5' : '#C0392B'
+}
+
 export default async (req) => {
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 })
 
@@ -55,7 +59,6 @@ export default async (req) => {
 
   const { contact, paymentIntent, rankings, ratings, context } = body
   console.log('Assessment received for:', contact?.email)
-  console.log('Rankings count:', rankings?.length, 'Ratings keys:', Object.keys(ratings || {}))
 
   const stripeKey = process.env.STRIPE_SECRET_KEY
   if (stripeKey && paymentIntent) {
@@ -76,6 +79,8 @@ export default async (req) => {
   const scoreEntries = Object.values(boostScores)
   const primaryGap = scoreEntries.reduce((a, b) => a.score < b.score ? a : b)
   const topStrength = scoreEntries.reduce((a, b) => a.score > b.score ? a : b)
+  const primaryColor = profileColor(personality.primary)
+  const secondaryColor = profileColor(personality.secondary)
   console.log('Profile:', personality.primaryProfile.name, '| Gap:', primaryGap.pillar, '| Program:', program)
 
   let reportText = ''
@@ -88,19 +93,24 @@ export default async (req) => {
       body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] }),
     })
     const result = await response.json()
-    console.log('Claude type:', result.type, '| stop:', result.stop_reason, '| content length:', result.content?.length)
+    console.log('Claude type:', result.type, '| stop:', result.stop_reason)
     reportText = result.content?.[0]?.text || ''
-    if (!reportText) console.error('No report text. Full result:', JSON.stringify(result).substring(0, 400))
+    if (!reportText) console.error('No report text:', JSON.stringify(result).substring(0, 300))
     else console.log('Report generated, chars:', reportText.length)
   } catch (err) {
     console.error('Report generation error:', err.message)
     reportText = `BOOST Blueprint Report for ${contact.fullName}\n\nProfile: ${personality.primaryProfile.name} | Gap: ${primaryGap.pillar} | Program: ${program}\n\nBook your strategy call: https://realwiseacademy.com`
   }
 
+  const scoreRows = Object.values(boostScores).map(s => `<tr><td style="padding:8px 12px;border-bottom:1px solid #eee;font-weight:600">${s.pillar}</td><td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;font-weight:700;color:${s.status==='Strength'?'#1A7A4A':s.status==='Developing'?'#C8922A':'#E4181B'}">${s.score}</td><td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;color:${s.status==='Strength'?'#1A7A4A':s.status==='Developing'?'#C8922A':'#E4181B'}">${s.status}</td></tr>`).join('')
+  const reportHtml = reportText.split('\n').map(l => l.startsWith('SECTION') ? `<h3 style="color:#E4181B;margin:20px 0 8px">${l}</h3>` : l.trim() ? `<p style="margin:0 0 10px;line-height:1.7">${l}</p>` : '<br>').join('')
+  const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f8f8f8;font-family:Arial,sans-serif"><div style="max-width:680px;margin:0 auto;background:#fff"><div style="background:#1A1A1A;padding:24px 32px"><h1 style="color:#fff;margin:0">THE BOOST BLUEPRINT</h1><p style="color:#999;margin:4px 0 0;font-size:14px">Sales Assessment Report — RealWise Academy</p></div><div style="background:#E4181B;padding:16px 32px"><h2 style="color:#fff;margin:0">Your Report is Ready, ${contact.fullName.split(' ')[0]}!</h2></div><div style="padding:24px 32px;background:#f8f8f8"><table width="100%" cellpadding="0" cellspacing="6"><tr><td style="background:${primaryColor};border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">PRIMARY</div><div style="font-size:16px;font-weight:800">${personality.primaryProfile.name}</div></td><td style="width:6px"></td><td style="background:${secondaryColor};border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">SECONDARY</div><div style="font-size:16px;font-weight:800">${personality.secondaryProfile.name}</div></td><td style="width:6px"></td><td style="background:#1A7A4A;border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">TOP STRENGTH</div><div style="font-size:14px;font-weight:800">${topStrength.pillar} (${topStrength.score})</div></td><td style="width:6px"></td><td style="background:#E4181B;border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">PRIMARY GAP</div><div style="font-size:14px;font-weight:800">${primaryGap.pillar} (${primaryGap.score})</div></td></tr></table></div><div style="padding:0 32px 24px"><table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:8px;overflow:hidden"><tr style="background:#1A1A1A"><th style="padding:10px 12px;color:#fff;text-align:left">Pillar</th><th style="padding:10px 12px;color:#fff;text-align:center">Score</th><th style="padding:10px 12px;color:#fff;text-align:center">Status</th></tr>${scoreRows}</table></div><div style="padding:0 32px 32px;font-size:15px;color:#1A1A1A">${reportHtml}</div><div style="margin:0 32px 32px;background:#1A1A1A;border-radius:12px;padding:28px 32px;text-align:center"><h3 style="color:#fff;margin:0 0 8px">Ready to Build on This?</h3><p style="color:#999;font-size:14px;margin:0 0 20px">Book a complimentary 30-minute Strategy Call with John Dessauer.</p><a href="https://realwiseacademy.com/#programs" style="display:inline-block;background:#E4181B;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700">Book Your Strategy Call →</a></div><div style="padding:20px 32px;border-top:1px solid #eee;text-align:center"><p style="font-size:12px;color:#999;margin:0">© 2026 Dessauer Group II LLC | RealWise Academy</p></div></div></body></html>`
+
+  // Return ok immediately so frontend shows thank you page
+  const okResponse = new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } })
+
+  // Send emails and tag (after response is queued)
   try {
-    const scoreRows = Object.values(boostScores).map(s => `<tr><td style="padding:8px 12px;border-bottom:1px solid #eee;font-weight:600">${s.pillar}</td><td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;font-weight:700;color:${s.status==='Strength'?'#1A7A4A':s.status==='Developing'?'#C8922A':'#E4181B'}">${s.score}</td><td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;color:${s.status==='Strength'?'#1A7A4A':s.status==='Developing'?'#C8922A':'#E4181B'}">${s.status}</td></tr>`).join('')
-    const reportHtml = reportText.split('\n').map(l => l.startsWith('SECTION') ? `<h3 style="color:#E4181B;margin:20px 0 8px">${l}</h3>` : l.trim() ? `<p style="margin:0 0 10px;line-height:1.7">${l}</p>` : '<br>').join('')
-    const html = `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f8f8f8;font-family:Arial,sans-serif"><div style="max-width:680px;margin:0 auto;background:#fff"><div style="background:#1A1A1A;padding:24px 32px"><h1 style="color:#fff;margin:0">THE BOOST BLUEPRINT</h1><p style="color:#999;margin:4px 0 0;font-size:14px">Sales Assessment Report — RealWise Academy</p></div><div style="background:#E4181B;padding:16px 32px"><h2 style="color:#fff;margin:0">Your Report is Ready, ${contact.fullName.split(' ')[0]}!</h2></div><div style="padding:24px 32px;background:#f8f8f8"><table width="100%" cellpadding="0" cellspacing="6"><tr><td style="background:#6B3FA0;border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">PRIMARY</div><div style="font-size:16px;font-weight:800">${personality.primaryProfile.name}</div></td><td style="width:6px"></td><td style="background:#C8922A;border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">SECONDARY</div><div style="font-size:16px;font-weight:800">${personality.secondaryProfile.name}</div></td><td style="width:6px"></td><td style="background:#1A7A4A;border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">TOP STRENGTH</div><div style="font-size:14px;font-weight:800">${topStrength.pillar} (${topStrength.score})</div></td><td style="width:6px"></td><td style="background:#E4181B;border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">PRIMARY GAP</div><div style="font-size:14px;font-weight:800">${primaryGap.pillar} (${primaryGap.score})</div></td></tr></table></div><div style="padding:0 32px 24px"><table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:8px;overflow:hidden"><tr style="background:#1A1A1A"><th style="padding:10px 12px;color:#fff;text-align:left">Pillar</th><th style="padding:10px 12px;color:#fff;text-align:center">Score</th><th style="padding:10px 12px;color:#fff;text-align:center">Status</th></tr>${scoreRows}</table></div><div style="padding:0 32px 32px;font-size:15px;color:#1A1A1A">${reportHtml}</div><div style="margin:0 32px 32px;background:#1A1A1A;border-radius:12px;padding:28px 32px;text-align:center"><h3 style="color:#fff;margin:0 0 8px">Ready to Build on This?</h3><p style="color:#999;font-size:14px;margin:0 0 20px">Book a complimentary 30-minute Strategy Call with John Dessauer.</p><a href="https://realwiseacademy.com/#programs" style="display:inline-block;background:#E4181B;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700">Book Your Strategy Call →</a></div><div style="padding:20px 32px;border-top:1px solid #eee;text-align:center"><p style="font-size:12px;color:#999;margin:0">© 2026 Dessauer Group II LLC | RealWise Academy</p></div></div></body></html>`
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.RESEND_API_KEY}` },
       body: JSON.stringify({ from: 'John Dessauer | RealWise Academy <onboarding@resend.dev>', to: [contact.email], subject: `Your BOOST Blueprint Report is Ready, ${contact.fullName.split(' ')[0]}!`, html }),
@@ -128,5 +138,5 @@ export default async (req) => {
     console.log('Email Octopus tagged successfully')
   } catch (err) { console.error('Email Octopus error:', err.message) }
 
-  return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } })
+  return okResponse
 }
