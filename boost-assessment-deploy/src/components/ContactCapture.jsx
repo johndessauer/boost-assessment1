@@ -21,7 +21,7 @@ export default function ContactCapture({ onSubmit }) {
     setLoading(true)
     // Save contact to Email Octopus as a subscriber immediately
     try {
-      await fetch('/api/capture-contact', {
+      await fetch('/.netlify/functions/capture-contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),

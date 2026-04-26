@@ -15,7 +15,7 @@ export default function PaymentGate({ contact, onSuccess }) {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('/api/create-checkout', {
+      const res = await fetch('/.netlify/functions/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

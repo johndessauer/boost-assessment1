@@ -59,7 +59,7 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
     setSubmitting(true)
     setError('')
     try {
-      const res = await fetch('/api/submit-assessment', {
+      const res = await fetch('/.netlify/functions/submit-assessment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contact, paymentIntent, rankings, ratings, context }),
