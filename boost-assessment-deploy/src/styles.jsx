@@ -2,6 +2,7 @@ import React from "react"
 // ─── BRAND COLORS ─────────────────────────────────────────────────────────────
 export const colors = {
   red:       '#E4181B',
+  green:     '#1A5C38',
   black:     '#1A1A1A',
   darkGray:  '#444444',
   midGray:   '#999999',
@@ -119,7 +120,7 @@ export const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    background: colors.red,
+    background: colors.green,
     color: colors.white,
     border: 'none',
     borderRadius: 8,
