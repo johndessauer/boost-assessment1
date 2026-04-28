@@ -1,4 +1,3 @@
-// v3
 const profileLabels = {
   A: { name: 'Purple', style: 'Warm / Relational' },
   B: { name: 'Gold',   style: 'Analytical / Deliberate' },
@@ -107,7 +106,7 @@ export default async (req) => {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] }),
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 4000, messages: [{ role: 'user', content: prompt }] }),
     })
     const result = await response.json()
     console.log('Claude type:', result.type, '| stop:', result.stop_reason)
@@ -127,7 +126,7 @@ export default async (req) => {
 
   const reportHtml = cleanReportHtml(reportText)
 
-  const html = '<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f8f8f8;font-family:Arial,sans-serif">'
+  const html = '<!DOCTYPE html><html><head><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"></head><body style="margin:0;padding:0;background:#f8f8f8;font-family:Arial,sans-serif">'
     + '<div style="max-width:680px;margin:0 auto;background:#fff">'
     + '<div style="background:#1A1A1A;padding:24px 32px"><h1 style="color:#fff;margin:0">THE BOOST BLUEPRINT</h1><p style="color:#999;margin:4px 0 0;font-size:14px">Sales Assessment Report — RealWise Academy</p></div>'
     + '<div style="background:#1A5C38;padding:16px 32px"><h2 style="color:#fff;margin:0">Your Report is Ready, ' + contact.fullName.split(' ')[0] + '!</h2></div>'
@@ -144,12 +143,12 @@ export default async (req) => {
     + '<tr style="background:#1A1A1A"><th style="padding:10px 12px;color:#fff;text-align:left">Pillar</th><th style="padding:10px 12px;color:#fff;text-align:center">Score</th><th style="padding:10px 12px;color:#fff;text-align:center">Status</th></tr>'
     + scoreRows + '</table></div>'
     + '<div style="padding:0 32px 32px;font-size:15px;color:#1A1A1A">' + reportHtml + '</div>'
-    + '<div style="margin:0 32px 32px;background:#F2F2F2;border-radius:12px;padding:28px 32px;text-align:center">'
-    + '<h3 style="color:#1A1A1A;margin:0 0 8px">Ready to Build on This?</h3>'
-    + '<p style="color:#444444;font-size:14px;margin:0 0 20px">Book a complimentary 30-minute Strategy Call with John Dessauer.</p>'
-    + '<a href="https://realwiseacademy.com/#programs" style="display:inline-block;background:#1A5C38;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700">Book Your Strategy Call</a>'
+    + '<div style="margin:0 32px 32px;background:#F2F2F2 !important;border-radius:12px;padding:28px 32px;text-align:center;color-scheme:light">'
+    + '<h3 style="color:#1A1A1A !important;margin:0 0 8px">Ready to Build on This?</h3>'
+    + '<p style="color:#444444 !important;font-size:14px;margin:0 0 20px">Book a complimentary 30-minute Strategy Call with John Dessauer.</p>'
+    + '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table cellpadding="0" cellspacing="0"><tr><td style="background:#1A5C38 !important;border-radius:8px"><a href="https://realwiseacademy.com/#programs" style="display:inline-block;background:#1A5C38 !important;color:#ffffff !important;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;mso-padding-alt:0;font-family:Arial,sans-serif">Book Your Strategy Call</a></td></tr></table></td></tr></table>'
     + '</div>'
-    + '<div style="padding:20px 32px;border-top:1px solid #eee;text-align:center"><p style="font-size:12px;color:#F2F2F2;margin:0">2026 Dessauer Group II LLC | RealWise Academy</p></div>'
+    + '<div style="padding:20px 32px;border-top:1px solid #eee;text-align:center"><p style="font-size:12px;color:#999;margin:0">2026 Dessauer Group II LLC | RealWise Academy</p></div>'
     + '</div></body></html>'
 
   const okResponse = new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } })
