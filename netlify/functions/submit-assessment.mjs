@@ -148,7 +148,7 @@ export default async (req) => {
     + '<p style="color:#444444;font-size:14px;margin:0 0 20px">Book a complimentary 30-minute Strategy Call with John Dessauer.</p>'
     + '<a href="https://realwiseacademy.com/#programs" style="display:inline-block;background:#1A5C38;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700">Book Your Strategy Call</a>'
     + '</div>'
-    + '<div style="padding:20px 32px;border-top:1px solid #eee;text-align:center"><p style="font-size:12px;color:#999;margin:0">2026 Dessauer Group II LLC | RealWise Academy</p></div>'
+    + '<div style="padding:20px 32px;border-top:1px solid #eee;text-align:center"><p style="font-size:12px;color:#F2F2F2;margin:0">2026 Dessauer Group II LLC | RealWise Academy</p></div>'
     + '</div></body></html>'
 
   const okResponse = new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } })
