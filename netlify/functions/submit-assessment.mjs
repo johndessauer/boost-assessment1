@@ -143,58 +143,10 @@ export default async (req) => {
     + '<tr style="background:#1A1A1A"><th style="padding:10px 12px;color:#fff;text-align:left">Pillar</th><th style="padding:10px 12px;color:#fff;text-align:center">Score</th><th style="padding:10px 12px;color:#fff;text-align:center">Status</th></tr>'
     + scoreRows + '</table></div>'
     + '<div style="padding:0 32px 32px;font-size:15px;color:#1A1A1A">' + reportHtml + '</div>'
-    + '<div style="margin:0 32px 32px;background:#F2F2F2 !important;border-radius:12px;padding:28px 32px;text-align:center;color-scheme:light">'
-    + '<h3 style="color:#1A1A1A !important;margin:0 0 8px">Ready to Build on This?</h3>'
-    + '<p style="color:#444444 !important;font-size:14px;margin:0 0 20px">Book a complimentary 30-minute Strategy Call with John Dessauer.</p>'
-    + '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table cellpadding="0" cellspacing="0"><tr><td style="background:#1A5C38 !important;border-radius:8px"><a href="https://realwiseacademy.com/#programs" style="display:inline-block;background:#1A5C38 !important;color:#ffffff !important;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;mso-padding-alt:0;font-family:Arial,sans-serif">Book Your Strategy Call</a></td></tr></table></td></tr></table>'
+    + '<div style="margin:0 32px 32px;background:#1A1A1A;border-radius:12px;padding:28px 32px;text-align:center">'
+    + '<h3 style="color:#ffffff;margin:0 0 8px">Ready to Build on This?</h3>'
+    + '<p style="color:#cccccc;font-size:14px;margin:0 0 20px">Book a complimentary 30-minute Strategy Call with John Dessauer.</p>'
+    + '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table cellpadding="0" cellspacing="0"><tr><td style="background:#1A5C38;border-radius:8px"><a href="https://realwiseacademy.com/#programs" style="display:inline-block;background:#1A5C38;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-family:Arial,sans-serif">Book Your Strategy Call</a></td></tr></table></td></tr></table>'
     + '</div>'
     + '<div style="padding:20px 32px;border-top:1px solid #eee;text-align:center"><p style="font-size:12px;color:#999;margin:0">2026 Dessauer Group II LLC | RealWise Academy</p></div>'
-    + '</div></body></html>'
-
-  const okResponse = new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } })
-
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.RESEND_API_KEY },
-      body: JSON.stringify({ from: 'John Dessauer | RealWise Academy <onboarding@resend.dev>', to: [contact.email], subject: 'Your BOOST Blueprint Report is Ready, ' + contact.fullName.split(' ')[0] + '!', html }),
-    })
-    const emailResult = await res.json()
-    console.log('Respondent email:', JSON.stringify(emailResult).substring(0, 200))
-  } catch (err) { console.error('Respondent email error:', err.message) }
-
-  try {
-    const telLink = 'tel:' + contact.phone.replace(/\D/g, '')
-    const ownerHtml = '<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">'
-      + '<div style="background:#1A1A1A;padding:20px;border-radius:8px 8px 0 0"><h2 style="color:#fff;margin:0">New Assessment: ' + contact.fullName + '</h2></div>'
-      + '<div style="background:#E4181B;padding:12px 20px"><h3 style="color:#fff;margin:0">' + personality.primaryProfile.name + '/' + personality.secondaryProfile.name + ' | Gap: ' + primaryGap.pillar + ' (' + primaryGap.score + ')</h3></div>'
-      + '<div style="border:1px solid #eee;border-top:none;padding:20px;border-radius:0 0 8px 8px">'
-      + '<table cellpadding="6" cellspacing="0" width="100%">'
-      + '<tr><td style="font-weight:600;width:130px">Name:</td><td>' + contact.fullName + '</td></tr>'
-      + '<tr><td style="font-weight:600">Email:</td><td><a href="mailto:' + contact.email + '" style="color:#E4181B">' + contact.email + '</a></td></tr>'
-      + '<tr><td style="font-weight:600">Phone:</td><td><a href="' + telLink + '" style="color:#E4181B;font-size:18px;font-weight:700">' + contact.phone + '</a></td></tr>'
-      + '<tr><td style="font-weight:600">Industry:</td><td>' + (context.industry||'N/A') + '</td></tr>'
-      + '<tr><td style="font-weight:600">Role:</td><td>' + (context.role||'N/A') + '</td></tr>'
-      + '<tr><td style="font-weight:600">Gap:</td><td style="color:#E4181B;font-weight:700">' + primaryGap.pillar + ' (' + primaryGap.score + ')</td></tr>'
-      + '<tr><td style="font-weight:600">Program:</td><td><strong>' + program + '</strong></td></tr>'
-      + '</table>'
-      + '<div style="margin-top:20px;text-align:center"><a href="' + telLink + '" style="display:inline-block;background:#E4181B;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-size:18px">Call ' + contact.fullName.split(' ')[0] + ' Now</a></div>'
-      + '</div></body></html>'
-
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.RESEND_API_KEY },
-      body: JSON.stringify({ from: 'BOOST Assessment <onboarding@resend.dev>', to: [process.env.OWNER_EMAIL], subject: 'New Assessment: ' + contact.fullName + ' | ' + personality.primaryProfile.name + ' | Gap: ' + primaryGap.pillar, html: ownerHtml }),
-    })
-    const ownerResult = await res.json()
-    console.log('Owner email:', JSON.stringify(ownerResult).substring(0, 200))
-  } catch (err) { console.error('Owner email error:', err.message) }
-
-  try {
-    await fetch('https://emailoctopus.com/api/1.6/lists/' + process.env.EMAIL_OCTOPUS_LIST_ID + '/contacts', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ api_key: process.env.EMAIL_OCTOPUS_API_KEY, email_address: contact.email, fields: { FirstName: contact.fullName.split(' ')[0], LastName: contact.fullName.split(' ').slice(1).join(' '), Phone: contact.phone }, tags: ['boost-assessment-completed', 'profile-' + personality.primaryProfile.name.toLowerCase(), 'gap-' + primaryGap.pillar.toLowerCase().replace(/ /g, '-')], status: 'SUBSCRIBED' }),
-    })
-    console.log('Email Octopus tagged successfully')
-  } catch (err) { console.error('Email Octopus error:', err.message) }
-
-  return okResponse
-}
+    + '</div>
