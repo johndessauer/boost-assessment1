@@ -1,4 +1,4 @@
-// v2
+// v3
 const profileLabels = {
   A: { name: 'Purple', style: 'Warm / Relational' },
   B: { name: 'Gold',   style: 'Analytical / Deliberate' },
