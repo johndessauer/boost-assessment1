@@ -25,7 +25,7 @@ function calculateBoostScores(ratings) {
     const status = score >= 80 ? 'Strength' : score >= 60 ? 'Developing' : 'Gap'
     scores[section.id] = { raw, score, status, pillar: section.pillar, pillarLetter: section.pillarLetter }
   })
-  return scores
+  return scores 
 }
 function getProgramRecommendation(boostScores, context) {
   const isTeam = ['Sales Manager', 'Business Owner'].includes(context.role) || ['2-5','6-20','21-100','100+'].includes(context.team_size)
