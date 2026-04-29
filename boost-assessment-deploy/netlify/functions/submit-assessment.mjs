@@ -182,7 +182,7 @@ export default async (req) => {
 
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.RESEND_API_KEY },
-      body: JSON.stringify({ from: 'BOOST Assessment <onboarding@resend.dev>', to: [process.env.OWNER_EMAIL], subject: 'New Assessment: ' + contact.fullName + ' | ' + personality.primaryProfile.name + ' | Gap: ' + primaryGap.pillar, html: ownerHtml }),
+      body: JSON.stringify({ from: 'BOOST Assessment <john@thedessauergroup.com>', to: [process.env.OWNER_EMAIL], subject: 'New Assessment: ' + contact.fullName + ' | ' + personality.primaryProfile.name + ' | Gap: ' + primaryGap.pillar, html: ownerHtml }),
     })
     const ownerResult = await res.json()
     console.log('Owner email:', JSON.stringify(ownerResult).substring(0, 200))
