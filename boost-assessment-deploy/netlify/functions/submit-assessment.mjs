@@ -156,7 +156,7 @@ export default async (req) => {
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.RESEND_API_KEY },
-      body: JSON.stringify({ from: 'John Dessauer | RealWise Academy <onboarding@resend.dev>', to: [contact.email], subject: 'Your BOOST Blueprint Report is Ready, ' + contact.fullName.split(' ')[0] + '!', html }),
+      body: JSON.stringify({ from: 'John Dessauer | RealWise Academy <john@thedessauergroup.com>', to: [contact.email], subject: 'Your BOOST Blueprint Report is Ready, ' + contact.fullName.split(' ')[0] + '!', html }),
     })
     const emailResult = await res.json()
     console.log('Respondent email:', JSON.stringify(emailResult).substring(0, 200))
