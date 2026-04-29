@@ -94,14 +94,14 @@ export default async (req) => {
       + 'Top Strength: ' + topStrength.pillar + ' (' + topStrength.score + ') | Gap: ' + primaryGap.pillar + ' (' + primaryGap.score + ')\n'
       + 'Program: ' + program + '\n\n'
       + 'Profiles: Purple=Warm/Relational, Gold=Analytical, Blue=Visionary/Creative, Red=Driver/Results\n\n'
-      + 'Write 7 sections (2-3 paragraphs each). IMPORTANT: Do NOT use any markdown — no # symbols, no ** bold markers, no --- dividers. Use plain text only. Start each section heading on its own line exactly like this:\n'
-      + 'SECTION 1 — YOUR COLOR PROFILE\n'
-      + 'SECTION 2 — YOUR BOOST SCORE DASHBOARD\n'
-      + 'SECTION 3 — WHERE YOUR WIRING MEETS YOUR SKILL GAP\n'
-      + 'SECTION 4 — THE BOOST BLUEPRINT\n'
-      + 'SECTION 5 — YOUR PERSONALIZED PLAYBOOK\n'
-      + 'SECTION 6 — YOUR PROGRAM RECOMMENDATION\n'
-      + 'SECTION 7 — YOUR NEXT STEP (CTA to book at RealWiseAcademy.com)'
+      + 'Write 7 sections (2-3 paragraphs each). IMPORTANT: Do NOT use any markdown -- no # symbols, no ** bold markers, no --- dividers. Use plain text only. Start each section heading on its own line exactly like this:\n'
+      + 'SECTION 1 -- YOUR COLOR PROFILE\n'
+      + 'SECTION 2 -- YOUR BOOST SCORE DASHBOARD\n'
+      + 'SECTION 3 -- WHERE YOUR WIRING MEETS YOUR SKILL GAP\n'
+      + 'SECTION 4 -- THE BOOST BLUEPRINT\n'
+      + 'SECTION 5 -- YOUR PERSONALIZED PLAYBOOK\n'
+      + 'SECTION 6 -- YOUR PROGRAM RECOMMENDATION\n'
+      + 'SECTION 7 -- YOUR NEXT STEP (CTA to book at RealWiseAcademy.com)'
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -126,9 +126,9 @@ export default async (req) => {
 
   const reportHtml = cleanReportHtml(reportText)
 
-  const html = '<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f8f8f8;font-family:Arial,sans-serif">'
+  const html = '<!DOCTYPE html><html><head><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"></head><body style="margin:0;padding:0;background:#f8f8f8;font-family:Arial,sans-serif">'
     + '<div style="max-width:680px;margin:0 auto;background:#fff">'
-    + '<div style="background:#1A1A1A;padding:24px 32px"><h1 style="color:#fff;margin:0">THE BOOST BLUEPRINT</h1><p style="color:#999;margin:4px 0 0;font-size:14px">Sales Assessment Report — RealWise Academy</p></div>'
+    + '<div style="background:#1A1A1A;padding:24px 32px"><h1 style="color:#fff;margin:0">THE BOOST BLUEPRINT</h1><p style="color:#999;margin:4px 0 0;font-size:14px">Sales Assessment Report -- RealWise Academy</p></div>'
     + '<div style="background:#1A5C38;padding:16px 32px"><h2 style="color:#fff;margin:0">Your Report is Ready, ' + contact.fullName.split(' ')[0] + '!</h2></div>'
     + '<div style="padding:24px 32px;background:#f8f8f8"><table width="100%" cellpadding="0" cellspacing="6"><tr>'
     + '<td style="background:' + primaryColor + ';border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">PRIMARY</div><div style="font-size:16px;font-weight:800">' + personality.primaryProfile.name + '</div></td>'
@@ -143,10 +143,10 @@ export default async (req) => {
     + '<tr style="background:#1A1A1A"><th style="padding:10px 12px;color:#fff;text-align:left">Pillar</th><th style="padding:10px 12px;color:#fff;text-align:center">Score</th><th style="padding:10px 12px;color:#fff;text-align:center">Status</th></tr>'
     + scoreRows + '</table></div>'
     + '<div style="padding:0 32px 32px;font-size:15px;color:#1A1A1A">' + reportHtml + '</div>'
-    + '<div style="margin:0 32px 32px;background:#F2F2F2;border-radius:12px;padding:28px 32px;text-align:center">'
-    + '<h3 style="color:#1A1A1A;margin:0 0 8px">Ready to Build on This?</h3>'
-    + '<p style="color:#444444;font-size:14px;margin:0 0 20px">Book a complimentary 30-minute Strategy Call with John Dessauer.</p>'
-    + '<a href="https://realwiseacademy.com/#programs" style="display:inline-block;background:#1A5C38;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700">Book Your Strategy Call</a>'
+    + '<div style="margin:0 32px 32px;background:#1A1A1A;border-radius:12px;padding:28px 32px;text-align:center">'
+    + '<h3 style="color:#ffffff;margin:0 0 8px">Ready to Build on This?</h3>'
+    + '<p style="color:#cccccc;font-size:14px;margin:0 0 20px">Book a complimentary 30-minute Strategy Call with John Dessauer.</p>'
+    + '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table cellpadding="0" cellspacing="0"><tr><td style="background:#1A5C38;border-radius:8px"><a href="https://realwiseacademy.com/#programs" style="display:inline-block;background:#1A5C38;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-family:Arial,sans-serif">Book Your Strategy Call</a></td></tr></table></td></tr></table>'
     + '</div>'
     + '<div style="padding:20px 32px;border-top:1px solid #eee;text-align:center"><p style="font-size:12px;color:#999;margin:0">2026 Dessauer Group II LLC | RealWise Academy</p></div>'
     + '</div></body></html>'
@@ -156,7 +156,7 @@ export default async (req) => {
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.RESEND_API_KEY },
-      body: JSON.stringify({ from: 'John Dessauer | RealWise Academy <onboarding@resend.dev>', to: [contact.email], subject: 'Your BOOST Blueprint Report is Ready, ' + contact.fullName.split(' ')[0] + '!', html }),
+      body: JSON.stringify({ from: 'John Dessauer | RealWise Academy <john@thedessauergroup.com>', to: [contact.email], subject: 'Your BOOST Blueprint Report is Ready, ' + contact.fullName.split(' ')[0] + '!', html }),
     })
     const emailResult = await res.json()
     console.log('Respondent email:', JSON.stringify(emailResult).substring(0, 200))
@@ -177,12 +177,12 @@ export default async (req) => {
       + '<tr><td style="font-weight:600">Gap:</td><td style="color:#E4181B;font-weight:700">' + primaryGap.pillar + ' (' + primaryGap.score + ')</td></tr>'
       + '<tr><td style="font-weight:600">Program:</td><td><strong>' + program + '</strong></td></tr>'
       + '</table>'
-      + '<div style="margin-top:20px;text-align:center"><a href="' + telLink + '" style="display:inline-block;background:#E4181B;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-size:18px">Call ' + contact.fullName.split(' ')[0] + ' Now</a></div>'
+      + '<div style="margin-top:20px;text-align:center"><a href="' + telLink + '" style="display:inline-block;background:#1A5C38;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-size:18px">Call ' + contact.fullName.split(' ')[0] + ' Now</a></div>'
       + '</div></body></html>'
 
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.RESEND_API_KEY },
-      body: JSON.stringify({ from: 'BOOST Assessment <onboarding@resend.dev>', to: [process.env.OWNER_EMAIL], subject: 'New Assessment: ' + contact.fullName + ' | ' + personality.primaryProfile.name + ' | Gap: ' + primaryGap.pillar, html: ownerHtml }),
+      body: JSON.stringify({ from: 'BOOST Assessment <john@thedessauergroup.com>', to: [process.env.OWNER_EMAIL], subject: 'New Assessment: ' + contact.fullName + ' | ' + personality.primaryProfile.name + ' | Gap: ' + primaryGap.pillar, html: ownerHtml }),
     })
     const ownerResult = await res.json()
     console.log('Owner email:', JSON.stringify(ownerResult).substring(0, 200))
