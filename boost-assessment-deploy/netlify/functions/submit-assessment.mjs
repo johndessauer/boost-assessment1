@@ -78,9 +78,6 @@ export default async (req) => {
   const { contact, paymentIntent, rankings, ratings, context } = body
   console.log('Assessment received for:', contact?.email)
 
-  // ─────────────────────────────────────────────────────────────────
-  // STRIPE PAYMENT VERIFICATION
-  // ─────────────────────────────────────────────────────────────────
   const stripeKey = process.env.STRIPE_SECRET_KEY
   if (stripeKey && paymentIntent) {
     try {
@@ -110,7 +107,6 @@ export default async (req) => {
   try {
     const scores = Object.values(boostScores).map(s => s.pillar + ': ' + s.score + ' (' + s.status + ')').join(', ')
     
-    // Determine effective role for report personalization
     let effectiveRole = context.role
     if (context.role === 'Entrepreneur') {
       if (context.business_structure === 'No, just me') {
@@ -120,117 +116,69 @@ export default async (req) => {
       }
     }
 
-    const prompt = `You are creating a comprehensive, personalized BOOST Blueprint Sales Assessment Report for ${contact.fullName}.
+    const prompt = `You are creating a personalized BOOST Blueprint Sales Assessment Report for ${contact.fullName}.
 
 RESPONDENT PROFILE:
-- Full Name: ${contact.fullName}
-- Email: ${contact.email}
+- Name: ${contact.fullName}
 - Role: ${effectiveRole}
 - Industry: ${context.industry || 'Sales'}
-- Years in Sales: ${context.experience || 'Not specified'}
-- Team Size: ${context.team_size || 'Not specified'}
-
-PERSONALITY PROFILE:
-- Primary: ${personality.primaryProfile.name} (${personality.primaryProfile.style})
-- Secondary: ${personality.secondaryProfile.name} (${personality.secondaryProfile.style})
+- Experience: ${context.experience || 'Not specified'}
+- Personality: ${personality.primaryProfile.name} (primary) / ${personality.secondaryProfile.name} (secondary)
 
 BOOST SCORES:
 ${scores}
 
-TOP STRENGTH: ${topStrength.pillar} (${topStrength.score})
-PRIMARY GAP: ${primaryGap.pillar} (${primaryGap.score})
+KEY METRICS:
+- Top Strength: ${topStrength.pillar} (${topStrength.score})
+- Primary Gap: ${primaryGap.pillar} (${primaryGap.score})
+- Program Recommendation: ${program}
 
-RECOMMENDED PROGRAM: ${program}
+---
 
-═══════════════════════════════════════════════════════════════════
+WRITE AN 8-SECTION PERSONALIZED REPORT (15-18 pages total):
 
-STRUCTURE & REQUIREMENTS:
+SECTION 1: EXECUTIVE SUMMARY
+Open with impact. You are a ${personality.primaryProfile.name}-${personality.secondaryProfile.name} hybrid - a rare combination. Your assessment reveals both tremendous potential and a critical gap costing you significant revenue. Estimate revenue impact of closing your primary gap (${primaryGap.pillar}). Make it personal, urgent, and hopeful. Use specific numbers and examples relevant to their industry.
 
-This is a 20–25 page report. Divide it into 13 sections:
+SECTION 2: YOUR PERSONALITY BLUEPRINT
+Explain what it means to be a ${personality.primaryProfile.name} with ${personality.secondaryProfile.name} secondary traits. Use neuroscience. Why do they sell the way they do? What are their natural superpowers? What blind spots come with this personality? Ground this in psychology and sales research.
 
-1. SECTION 1: Executive Summary (2 pages)
-   - Big picture of their sales DNA and potential
-   - Hook them on the opportunity to unlock it
+SECTION 3: YOUR BOOST SCORECARD DECODED
+Walk through each of the 5 BOOST pillars. For each: the score, what it means, real-world impact. Use concrete examples. Explain Strengths (80+), Developing (60-79), Gaps (below 60). This is their data dashboard - make it clear and actionable.
 
-2. SECTION 2: The Science of Personality-Driven Selling (2 pages)
-   - Explain the four color profiles using neuroscience
-   - Why ${personality.primaryProfile.name} personalities sell the way they do
+SECTION 4: YOUR PRIMARY GAP: ${primaryGap.pillar.toUpperCase()}
+Deep dive into their biggest opportunity. Why does a ${personality.primaryProfile.name} personality typically struggle here? What does this gap cost them? (Use dollar amounts if possible.) What specific behaviors are creating this gap? What research backs up why this matters? Make it feel personal and fixable.
 
-3. SECTION 3: Your Personality Profile (2 pages)
-   - Deep dive into their ${personality.primaryProfile.name} strengths
-   - Secondary ${personality.secondaryProfile.name} nuances and how they interact
-   - Real-world examples of how this shows up in their selling
+SECTION 5: YOUR TOP STRENGTH: ${topStrength.pillar.toUpperCase()}
+Celebrate their superpower. How can they leverage this MORE? How does this strength mask or compensate for their gap? Stories or examples of how this strength shows up in their selling. Position this as a foundation to build on.
 
-4. SECTION 4: Reading Other Personalities (2 pages)
-   - How to identify other colors in prospects
-   - How to adapt their ${personality.primaryProfile.name} approach to different buyers
-   - Specific phrases and tactics for each color
+SECTION 6: SCIENCE-BACKED STRATEGIES TO CLOSE YOUR GAP
+Provide 3-4 concrete, science-backed approaches to improving their ${primaryGap.pillar} score. Ground each in neuroscience or behavioral psychology. These should feel like strategic advice from a sales coach, not generic tips. Make them specific to their personality type and industry.
 
-5. SECTION 5: The BOOST Framework Explained (2 pages)
-   - Overview of Build Trust, Observe, Offer, Secure, Track
-   - Why this framework works (backed by sales psychology and neuroscience)
+SECTION 7: YOUR 90-DAY IMPLEMENTATION ROADMAP
+Paint a clear 30-60-90 day picture. What should they do in Month 1? Month 2? Month 3? What results should they expect to see? Include specific metrics. Make this feel achievable and exciting. Position the ${program} program as the vehicle to accelerate this roadmap.
 
-6. SECTION 6: Your BOOST Scorecard (1.5 pages)
-   - Table showing all 5 scores
-   - Definitions: Strength (80+), Developing (60–79), Gap (under 60)
+SECTION 8: THE BUSINESS CASE & YOUR NEXT STEP
+Show the math: what closing this gap is worth in annual revenue. Frame this as ROI, not cost. Then make a clear, compelling CTA: Book a complimentary 30-minute Strategy Call with John Dessauer at www.realwiseacademy.com. Tell them what to expect on that call. End with something inspirational that ties their potential to RealWise Academy's mission.
 
-7. SECTION 7: Your Biggest Gap – ${primaryGap.pillar} (3 pages)
-   - Why this is your primary opportunity
-   - How it shows up in your pipeline
-   - Real-world cost of this gap (lost deals, longer cycles, etc.)
-   - Specific science-backed strategies to close this gap
+---
 
-8. SECTION 8: Your Top Strength – ${topStrength.pillar} (2 pages)
-   - Celebrate this
-   - How to leverage it more
-   - How to use this strength to compensate for gaps
-
-9. SECTION 9: Developing Areas (2 pages)
-   - Your secondary opportunities
-   - Quick wins for improvement
-
-10. SECTION 10: Your Personality + BOOST Blueprint (1.5 pages)
-    - How your ${personality.primaryProfile.name} nature interacts with BOOST
-    - Where you're naturally strong, where you need coaching
-
-11. SECTION 11: The Business Case (2 pages)
-    - Show the math: what closing your primary gap is worth
-    - Income potential with these fixes
-    - Timeline and ROI of training
-
-12. SECTION 12: Your Personalized Roadmap (2 pages)
-    - Specific actions for the next 30/60/90 days
-    - Which RealWise program fits (${program})
-    - How to implement BOOST in your selling
-
-13. SECTION 13: The Next Step (1 page)
-    - Clear CTA: Book a 30-minute strategy call
-    - Emphasize this is their unlock moment
-    - Position RealWise Academy as the partner for their growth
-
-───────────────────────────────────────────────────────────────────
-
-TONE:
-- Professional, data-driven, supportive, and confident.
-- Affirm their strengths while being honest about their gaps.
-- Make it feel like a strategic advisor's analysis, not a generic report.
-- Heavy on research and neuroscience.
-- Every section should feel personal and specific to their situation.
-- No fluff. Every sentence should earn its place.
+TONE & STYLE:
+- Professional, data-driven, empowering
+- Heavy on research and neuroscience
+- Specific to their personality and situation (not generic)
+- Affirm their strengths, honest about gaps
+- Every sentence earns its place - no fluff
+- Make them feel seen and understood
 
 LENGTH:
-- This is a 20–25 page report. You have room to breathe. Use it. Each section should be substantial.
+This is a 15-18 page report. Each section should be 2-4 paragraphs of substance. You have room to breathe - use it for depth, not filler.
 
-REMEMBER:
-- You are selling them on their potential and positioning RealWise Academy as the vehicle to unlock it.
-- The goal is to get them to book a strategy call.
-- They paid $97 for this assessment. Deliver $97 of value in the first read, and millions of dollars of possibility in the action they take.
+GOAL:
+Sell them on their potential. Position RealWise Academy as the path to unlock it. Get them to book the strategy call.
 
 Now write the report. Start with SECTION 1.`
 
-    // ─────────────────────────────────────────────────────────────────
-    // ANTHROPIC API CALL - FIXED
-    // ─────────────────────────────────────────────────────────────────
     const apiKey = process.env.ANTHROPIC_API_KEY
     
     if (!apiKey) {
@@ -249,7 +197,7 @@ Now write the report. Start with SECTION 1.`
       },
       body: JSON.stringify({ 
         model: 'claude-opus-4-20250514',
-        max_tokens: 15000, 
+        max_tokens: 12000, 
         messages: [{ role: 'user', content: prompt }] 
       }),
     })
@@ -278,13 +226,9 @@ Now write the report. Start with SECTION 1.`
     
   } catch (err) {
     console.error('CRITICAL - Report generation error:', err.message)
-    // Fallback report
     reportText = 'BOOST Blueprint Report for ' + contact.fullName + '\n\nProfile: ' + personality.primaryProfile.name + ' | Gap: ' + primaryGap.pillar + ' | Program: ' + program + '\n\nBook your strategy call: https://realwiseacademy.com'
   }
 
-  // ─────────────────────────────────────────────────────────────────
-  // BUILD EMAIL HTML
-  // ─────────────────────────────────────────────────────────────────
   const scoreRows = Object.values(boostScores).map(s =>
     '<tr><td style="padding:8px 12px;border-bottom:1px solid #eee;font-weight:600">' + s.pillar + '</td>'
     + '<td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;font-weight:700;color:' + (s.status==='Strength'?'#1A7A4A':s.status==='Developing'?'#C8922A':'#E4181B') + '">' + s.score + '</td>'
@@ -320,9 +264,6 @@ Now write the report. Start with SECTION 1.`
 
   const okResponse = new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } })
 
-  // ─────────────────────────────────────────────────────────────────
-  // SEND RESPONDENT EMAIL
-  // ─────────────────────────────────────────────────────────────────
   try {
     const resendKey = process.env.RESEND_API_KEY
     if (!resendKey) {
@@ -345,9 +286,6 @@ Now write the report. Start with SECTION 1.`
     console.error('Respondent email error:', err.message) 
   }
 
-  // ─────────────────────────────────────────────────────────────────
-  // SEND OWNER NOTIFICATION EMAIL
-  // ─────────────────────────────────────────────────────────────────
   try {
     const resendKey = process.env.RESEND_API_KEY
     const ownerEmail = process.env.OWNER_EMAIL
@@ -391,9 +329,6 @@ Now write the report. Start with SECTION 1.`
     console.error('Owner email error:', err.message) 
   }
 
-  // ─────────────────────────────────────────────────────────────────
-  // TAG IN EMAIL OCTOPUS
-  // ─────────────────────────────────────────────────────────────────
   try {
     const listId = process.env.EMAIL_OCTOPUS_LIST_ID
     const apiKey = process.env.EMAIL_OCTOPUS_API_KEY
