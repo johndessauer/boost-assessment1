@@ -42,9 +42,25 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
   }
 
   const validateP3 = () => {
-    const required = ['industry', 'role', 'experience', 'challenge', 'goal']
-    return required.every(id => context[id] !== '')
+  const required = ['industry', 'role', 'experience', 'challenge', 'goal']
+  
+  if (context.role === 'Entrepreneur') {
+    required.push('business_structure')
   }
+  
+  const isTeamLead = ['Sales Manager', 'Business Owner'].includes(context.role) || 
+                     (context.role === 'Entrepreneur' && context.business_structure === 'Yes, I have a small team')
+  if (isTeamLead) {
+    required.push('team_challenges')
+  }
+  
+  return required.every(id => {
+    if (Array.isArray(context[id])) {
+      return context[id] && context[id].length > 0
+    }
+    return context[id] !== ''
+  })
+}
 
   // ── Ranking input handler ────────────────────────────────────────────────────
   const setRank = (rowIndex, col, val) => {
