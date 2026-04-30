@@ -115,6 +115,27 @@ export const contextQuestions = [
     options: ['Just me', '2–5', '6–20', '21–100', '100+'],
   },
   {
+    id: 'business_structure',
+    question: 'Do you have employees or independent contractors working in sales for you?',
+    type: 'select',
+    options: ['No, just me', 'Yes, I have a small team'],
+    conditional: { field: 'role', value: 'Entrepreneur' },
+  },
+  {
+    id: 'team_challenges',
+    question: 'What are your top sales challenges today? (Select all that apply)',
+    type: 'multi-select',
+    options: [
+      'Talent acquisition and retention',
+      'Economic uncertainty / longer sales cycles / tighter budgets',
+      'Selling in the AI age',
+      'Building a more skilled sales team (objections, lead gen, etc.)',
+      'Tracking and data',
+      'Other',
+    ],
+    conditional: { field: 'showForTeam', value: true },
+  },
+  {
     id: 'challenge',
     question: 'What is your primary sales challenge right now?',
     type: 'select',
@@ -198,9 +219,22 @@ export function calculateBoostScores(ratings) {
 }
 
 export function getProgramRecommendation(boostScores, context) {
-  const isTeam = ['Sales Manager', 'Business Owner'].includes(context.role) || ['2–5','6–20','21–100','100+'].includes(context.team_size);
+  // Determine effective role
+  let effectiveRole = context.role;
+  if (context.role === 'Entrepreneur') {
+    if (context.business_structure === 'No, just me') {
+      effectiveRole = 'Individual Sales Rep';
+    } else if (context.business_structure === 'Yes, I have a small team') {
+      effectiveRole = 'Business Owner';
+    }
+  }
+
+  // Team-based programs
+  const isTeam = ['Sales Manager', 'Business Owner'].includes(effectiveRole) || ['2–5','6–20','21–100','100+'].includes(context.team_size);
   if (isTeam && ['21–100','100+'].includes(context.team_size)) return 'BOOST CSO Strategic Overhaul';
   if (isTeam) return 'BOOST Group & Team Sales Coaching';
+
+  // Individual programs (based on gaps)
   const gaps = Object.values(boostScores).filter(s => s.status === 'Gap').length;
   const developing = Object.values(boostScores).filter(s => s.status === 'Developing').length;
   const experienced = ['6–10 years','11–20 years','20+ years'].includes(context.experience);
