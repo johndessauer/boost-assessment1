@@ -197,7 +197,7 @@ Now write the report. Start with SECTION 1.`
       },
       body: JSON.stringify({ 
         model: 'claude-opus-4-20250514',
-        max_tokens: 9000, 
+        max_tokens: 5000, 
         messages: [{ role: 'user', content: prompt }] 
       }),
     })
