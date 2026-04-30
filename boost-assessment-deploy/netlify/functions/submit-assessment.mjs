@@ -4,7 +4,6 @@ const profileLabels = {
   C: { name: 'Blue',   style: 'Visionary / Creative' },
   D: { name: 'Red',    style: 'Driver / Results-Focused' },
 }
-
 const skillSections = [
   { id: 'build_trust', pillar: 'Build Trust', pillarLetter: 'B' },
   { id: 'observe',     pillar: 'Observe',     pillarLetter: 'O' },
@@ -12,14 +11,12 @@ const skillSections = [
   { id: 'secure',      pillar: 'Secure',      pillarLetter: 'S' },
   { id: 'track',       pillar: 'Track',       pillarLetter: 'T' },
 ]
-
 function calculatePersonalityProfile(rankings) {
   const totals = { A: 0, B: 0, C: 0, D: 0 }
   rankings.forEach(row => { totals.A += Number(row.A); totals.B += Number(row.B); totals.C += Number(row.C); totals.D += Number(row.D) })
   const sorted = Object.entries(totals).sort((a, b) => a[1] - b[1])
   return { totals, primary: sorted[0][0], secondary: sorted[1][0], primaryProfile: profileLabels[sorted[0][0]], secondaryProfile: profileLabels[sorted[1][0]] }
 }
-
 function calculateBoostScores(ratings) {
   const scores = {}
   skillSections.forEach(section => {
@@ -30,7 +27,6 @@ function calculateBoostScores(ratings) {
   })
   return scores
 }
-
 function getProgramRecommendation(boostScores, context) {
   let effectiveRole = context.role
   if (context.role === 'Entrepreneur') {
@@ -51,11 +47,9 @@ function getProgramRecommendation(boostScores, context) {
   if (gaps >= 2 || developing >= 3) return '10-Pack Consulting'
   return '1-Hour Consulting'
 }
-
 function profileColor(key) {
   return key === 'A' ? '#6B3FA0' : key === 'B' ? '#C8922A' : key === 'C' ? '#1A6FB5' : '#C0392B'
 }
-
 function cleanReportHtml(text) {
   return text.split('\n').map(l => {
     l = l.replace(/^#{1,3}\s+/, '')
@@ -71,10 +65,8 @@ export default async (req) => {
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 })
   let body
   try { body = await req.json() } catch (e) {
-    console.error('JSON parse error:', e.message)
     return new Response(JSON.stringify({ ok: false, error: 'Invalid request' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
   }
-
   const { contact, paymentIntent, rankings, ratings, context } = body
   console.log('Assessment received for:', contact?.email)
 
@@ -88,9 +80,7 @@ export default async (req) => {
       if (session.payment_status !== 'paid') {
         return new Response(JSON.stringify({ ok: false, error: 'Payment not verified.' }), { status: 402, headers: { 'Content-Type': 'application/json' } })
       }
-    } catch (err) { 
-      console.error('Payment error:', err.message) 
-    }
+    } catch (err) { console.error('Payment error:', err.message) }
   }
 
   const personality = calculatePersonalityProfile(rankings)
@@ -107,6 +97,7 @@ export default async (req) => {
   try {
     const scores = Object.values(boostScores).map(s => s.pillar + ': ' + s.score + ' (' + s.status + ')').join(', ')
     
+    // Determine effective role for report personalization
     let effectiveRole = context.role
     if (context.role === 'Entrepreneur') {
       if (context.business_structure === 'No, just me') {
@@ -116,116 +107,143 @@ export default async (req) => {
       }
     }
 
-    const prompt = `You are creating a personalized BOOST Blueprint Sales Assessment Report for ${contact.fullName}.
+    const prompt = `You are creating a comprehensive, personalized BOOST Blueprint Sales Assessment Report for ${contact.fullName}.
 
 RESPONDENT PROFILE:
-- Name: ${contact.fullName}
+- Full Name: ${contact.fullName}
+- Email: ${contact.email}
 - Role: ${effectiveRole}
 - Industry: ${context.industry || 'Sales'}
-- Experience: ${context.experience || 'Not specified'}
-- Personality: ${personality.primaryProfile.name} (primary) / ${personality.secondaryProfile.name} (secondary)
+- Years in Sales: ${context.experience || 'Not specified'}
+- Team Size: ${context.team_size || 'Solo'}
 
-BOOST SCORES:
-${scores}
+COLOR PERSONALITY PROFILE:
+- Primary Color: ${personality.primaryProfile.name} (${personality.primaryProfile.style})
+- Secondary Color: ${personality.secondaryProfile.name} (${personality.secondaryProfile.style})
+- Column Totals: Purple=${personality.totals.A}, Gold=${personality.totals.B}, Blue=${personality.totals.C}, Red=${personality.totals.D}
 
-KEY METRICS:
-- Top Strength: ${topStrength.pillar} (${topStrength.score})
-- Primary Gap: ${primaryGap.pillar} (${primaryGap.score})
-- Program Recommendation: ${program}
+BOOST SCORES (0-100 scale):
+- Build Trust: ${boostScores.build_trust.score} (${boostScores.build_trust.status})
+- Observe: ${boostScores.observe.score} (${boostScores.observe.status})
+- Offer: ${boostScores.offer.score} (${boostScores.offer.status})
+- Secure: ${boostScores.secure.score} (${boostScores.secure.status})
+- Track: ${boostScores.track.score} (${boostScores.track.status})
 
----
+PRIMARY GAP: ${primaryGap.pillar} (${primaryGap.score})
+TOP STRENGTH: ${topStrength.pillar} (${topStrength.score})
 
-WRITE AN 8-SECTION PERSONALIZED REPORT (15-18 pages total):
-
-SECTION 1: EXECUTIVE SUMMARY
-Open with impact. You are a ${personality.primaryProfile.name}-${personality.secondaryProfile.name} hybrid - a rare combination. Your assessment reveals both tremendous potential and a critical gap costing you significant revenue. Estimate revenue impact of closing your primary gap (${primaryGap.pillar}). Make it personal, urgent, and hopeful. Use specific numbers and examples relevant to their industry.
-
-SECTION 2: YOUR PERSONALITY BLUEPRINT
-Explain what it means to be a ${personality.primaryProfile.name} with ${personality.secondaryProfile.name} secondary traits. Use neuroscience. Why do they sell the way they do? What are their natural superpowers? What blind spots come with this personality? Ground this in psychology and sales research.
-
-SECTION 3: YOUR BOOST SCORECARD DECODED
-Walk through each of the 5 BOOST pillars. For each: the score, what it means, real-world impact. Use concrete examples. Explain Strengths (80+), Developing (60-79), Gaps (below 60). This is their data dashboard - make it clear and actionable.
-
-SECTION 4: YOUR PRIMARY GAP: ${primaryGap.pillar.toUpperCase()}
-Deep dive into their biggest opportunity. Why does a ${personality.primaryProfile.name} personality typically struggle here? What does this gap cost them? (Use dollar amounts if possible.) What specific behaviors are creating this gap? What research backs up why this matters? Make it feel personal and fixable.
-
-SECTION 5: YOUR TOP STRENGTH: ${topStrength.pillar.toUpperCase()}
-Celebrate their superpower. How can they leverage this MORE? How does this strength mask or compensate for their gap? Stories or examples of how this strength shows up in their selling. Position this as a foundation to build on.
-
-SECTION 6: SCIENCE-BACKED STRATEGIES TO CLOSE YOUR GAP
-Provide 3-4 concrete, science-backed approaches to improving their ${primaryGap.pillar} score. Ground each in neuroscience or behavioral psychology. These should feel like strategic advice from a sales coach, not generic tips. Make them specific to their personality type and industry.
-
-SECTION 7: YOUR 90-DAY IMPLEMENTATION ROADMAP
-Paint a clear 30-60-90 day picture. What should they do in Month 1? Month 2? Month 3? What results should they expect to see? Include specific metrics. Make this feel achievable and exciting. Position the ${program} program as the vehicle to accelerate this roadmap.
-
-SECTION 8: THE BUSINESS CASE & YOUR NEXT STEP
-Show the math: what closing this gap is worth in annual revenue. Frame this as ROI, not cost. Then make a clear, compelling CTA: Book a complimentary 30-minute Strategy Call with John Dessauer at www.realwiseacademy.com. Tell them what to expect on that call. End with something inspirational that ties their potential to RealWise Academy's mission.
+RECOMMENDED PROGRAM: ${program}
 
 ---
 
-TONE & STYLE:
-- Professional, data-driven, empowering
-- Heavy on research and neuroscience
-- Specific to their personality and situation (not generic)
-- Affirm their strengths, honest about gaps
-- Every sentence earns its place - no fluff
-- Make them feel seen and understood
+WRITING INSTRUCTIONS (CRITICAL):
+You are writing a 20–25 page personalized strategic report. The tone is professional, data-driven, and supportive. The goal is to help this person understand their sales personality and BOOST skill gaps, teach them how to sell to different personality types, and position them to book a strategy call with RealWise Academy.
+
+DO NOT use markdown (no # symbols, ** bold markers, or --- dividers). Use plain text only. Each section heading should start with "SECTION X --" on its own line, exactly as shown below.
+
+Write these 13 sections (2–4 paragraphs each, except where noted):
+
+SECTION 1 -- YOUR COLOR PROFILE: THE ${personality.primaryProfile.name.toUpperCase()} PERSONALITY
+Explain what it means to be a ${personality.primaryProfile.name} in sales. Use specific traits from their profile. Reference their secondary color and how it modifies their primary style. Make it personal and affirming. Example: "As a ${personality.primaryProfile.name}, you bring [specific strengths] to every sales interaction. Your secondary ${personality.secondaryProfile.name} personality adds [modifier]." Ground this in research about personality types and sales performance.
+
+SECTION 2 -- UNDERSTANDING THE OTHER THREE COLORS
+Briefly describe Purple, Gold, Blue, and Red personalities (whichever three are not primary). For each, explain: How they make decisions, what they value, what stresses them, and how they buy. Keep it practical and memorable. This section should feel like a quick reference guide. Make it 3–4 paragraphs.
+
+SECTION 3 -- DEFINING YOUR SCORES: WHAT STRENGTH, DEVELOPING, AND GAP MEAN
+Explain the scoring system clearly. Define: A Strength is 80+ (you excel here consistently), Developing is 60–79 (you're building the skill, but inconsistently), and a Gap is below 60 (this skill needs focused development). Make it clear that all three are normal and fixable. Tie this to the neuroscience: gaps often reflect habits, not talent. Reference John Dessauer's principle that "sales is a learnable, teachable skill."
+
+SECTION 4 -- YOUR BOOST SCORE DASHBOARD: THE FIVE PILLARS EXPLAINED
+Walk through each of the five BOOST pillars one by one:
+- Build Trust (oxytocin-driven rapport)
+- Observe (discovery and needs analysis)
+- Offer (solution tailoring)
+- Secure (closing and objection handling)
+- Track (performance metrics and continuous improvement)
+
+For each pillar, give: the score, the status, what that means, and a brief science-backed explanation of why it matters. Use research citations from John Dessauer's BOOST book (neuroscience, psychology, sales data). Make this section 4–5 paragraphs, very data-focused.
+
+SECTION 5 -- WHERE YOUR WIRING MEETS YOUR SKILL GAP: YOUR PERSONALITY + YOUR PRIMARY GAP
+Connect their ${personality.primaryProfile.name} personality to their primary gap (${primaryGap.pillar}). Explain why ${personality.primaryProfile.name} personalities often struggle with ${primaryGap.pillar} (use specific reasoning). Example: "As a ${personality.primaryProfile.name}, you excel at building genuine connection—but that strength can sometimes mean you spend more time building rapport than moving to the close (Secure). This is a common pattern for your personality type." Make it validating and actionable. Reference research on personality-skill intersections.
+
+SECTION 6 -- YOUR BOOST BLUEPRINT: HOW TO SELL ACROSS ALL FIVE PILLARS AS A ${personality.primaryProfile.name.toUpperCase()}
+Provide principles (not detailed tactics) for how a ${personality.primaryProfile.name} should approach each BOOST pillar:
+- Build Trust: [principles for your color]
+- Observe: [principles for your color]
+- Offer: [principles for your color]
+- Secure: [principles for your color]
+- Track: [principles for your color]
+
+For each, explain the principle and WHY it works for ${personality.primaryProfile.name} personalities. Then end with: "To develop mastery in this pillar, you'll work through [specific topic] in our coaching program. Here's what's possible when you do..." Make this 4–5 paragraphs, focusing on principles and direction to coaching.
+
+SECTION 7 -- SELLING TO THE OTHER THREE COLORS: YOUR COMPETITIVE EDGE
+Teach them how to identify and adapt to the other three colors. For each color (not theirs), explain:
+- The first signal you'll see (how to read them in 60 seconds)
+- What they want (their buying motivations)
+- Your move (how to adapt your approach as a ${personality.primaryProfile.name})
+
+Make this a practical toolkit they can use immediately. Use the "Reading Someone in 60 Seconds" framework from the BOOST book. This section should feel like an unfair advantage. Make it 3–4 paragraphs.
+
+SECTION 8 -- THE SCIENCE BEHIND BOOST: WHY THIS SYSTEM WORKS
+Ground BOOST in neuroscience and research. Explain: oxytocin (trust), dopamine (anticipation and reward), cortisol (urgency and stress). Reference specific studies from the BOOST book: 
+- 95% of purchasing decisions are subconscious (Zaltman, Harvard)
+- Trust increases perceived competence by 50% (PLOS ONE)
+- Science-based selling produces 35% higher close rates (HBR 2024)
+- 57% of reps miss quota annually; training closes that gap (Salesforce 2024)
+
+Make this compelling and make it clear: BOOST is not theory—it's backed by decades of research and billions in real-world sales. This section should reinforce credibility. Make it 2–3 paragraphs.
+
+SECTION 9 -- YOUR PERSONALIZED PLAYBOOK: THE THREE BEHAVIORAL SHIFTS THAT WILL MOVE YOUR NEEDLE
+Based on their ${personality.primaryProfile.name} profile and their gaps, give three specific behavioral shifts they can start implementing immediately:
+1. [First shift, tied to personality and gap]
+2. [Second shift, tied to personality and gap]
+3. [Third shift, tied to personality and gap]
+
+For each, explain: What to do, why it matters for your personality, and what result to expect. Make this actionable and motivating. This is the "how" they start getting better right now. Make it 3–4 paragraphs.
+
+SECTION 10 -- WHY COACHING IS THE MULTIPLIER
+Reference the research: Training alone produces 1-in-5 behavior change. Training + structured coaching produces 4x greater behavior change (HBR 2024). Explain why: because habits are hard to break alone, because you need someone to challenge your assumptions, because you need feedback in real time. Position coaching not as an expense but as the vehicle that converts knowledge into results. Make it 2 paragraphs.
+
+SECTION 11 -- YOUR RECOMMENDED PROGRAM
+Name the program recommended based on their role, team size, and gaps: either 1-Hour Consulting, 10-Pack Consulting, Yearly Consulting, BOOST Group & Team Sales Coaching, or BOOST CSO Strategic Overhaul. Explain WHY this program is the right fit for them specifically. Reference their gaps, their role, their team size, and their challenges. Make this feel like it was designed for them. Make it 2–3 paragraphs.
+
+SECTION 12 -- WHAT SUCCESS LOOKS LIKE: THE 90-DAY VIEW
+Paint a picture of what becomes possible when they close their primary gap and build mastery in BOOST. Include: improved close rates, stronger relationships, increased referrals, higher confidence, clearer positioning with prospects. Make it specific to their personality and their gap. Make it aspirational but believable. This is the destination. Make it 2 paragraphs.
+
+SECTION 13 -- YOUR NEXT STEP: BOOK YOUR STRATEGY CALL
+Make a clear, direct call to action. Give them the URL to book: www.realwiseacademy.com. Tell them what to expect: a 30-minute complimentary strategy call with John Dessauer to discuss their assessment results, clarify which program is the best fit, and map out their next 90 days. Tell them the call will be specific to their color, their gaps, and their situation. End with something like: "Your sales potential is not a mystery. It's a science. And it's waiting for you to unlock it. Let's go."
+
+---
+
+TONE:
+- Professional, data-driven, supportive, and confident.
+- Affirm their strengths while being honest about their gaps.
+- Make it feel like a strategic advisor's analysis, not a generic report.
+- Heavy on research and neuroscience.
+- Every section should feel personal and specific to their situation.
+- No fluff. Every sentence should earn its place.
 
 LENGTH:
-This is a 15-18 page report. Each section should be 2-4 paragraphs of substance. You have room to breathe - use it for depth, not filler.
+- This is a 20–25 page report. You have room to breathe. Use it. Each section should be substantial.
 
-GOAL:
-Sell them on their potential. Position RealWise Academy as the path to unlock it. Get them to book the strategy call.
+REMEMBER:
+- You are selling them on their potential and positioning RealWise Academy as the vehicle to unlock it.
+- The goal is to get them to book a strategy call.
+- They paid $97 for this assessment. Deliver $97 of value in the first read, and millions of dollars of possibility in the action they take.
 
 Now write the report. Start with SECTION 1.`
 
-    const apiKey = process.env.ANTHROPIC_API_KEY
-    
-    if (!apiKey) {
-      console.error('CRITICAL: ANTHROPIC_API_KEY not set in environment variables')
-      throw new Error('Missing ANTHROPIC_API_KEY')
-    }
-
-    console.log('Calling Claude API with model: claude-opus-4-20250514')
-    
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json', 
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01' 
-      },
-      body: JSON.stringify({ 
-        model: 'claude-opus-4-20250514',
-        max_tokens: 5000, 
-        messages: [{ role: 'user', content: prompt }] 
-      }),
+      headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 6000, messages: [{ role: 'user', content: prompt }] }),
     })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Claude API error:', response.status, errorText)
-      throw new Error(`Claude API returned ${response.status}: ${errorText}`)
-    }
-
     const result = await response.json()
-    console.log('Claude response type:', result.type, '| stop reason:', result.stop_reason)
-    
-    if (result.error) {
-      console.error('Claude error:', JSON.stringify(result.error))
-      throw new Error(`Claude error: ${result.error.message}`)
-    }
-
+    console.log('Claude type:', result.type, '| stop:', result.stop_reason)
     reportText = (result.content && result.content[0]) ? result.content[0].text : ''
-    if (!reportText) {
-      console.error('No report text from Claude:', JSON.stringify(result).substring(0, 500))
-      throw new Error('Claude returned empty response')
-    }
-    
-    console.log('Report generated successfully, length:', reportText.length, 'chars')
-    
+    if (!reportText) console.error('No report text:', JSON.stringify(result).substring(0, 300))
+    else console.log('Report generated, chars:', reportText.length)
   } catch (err) {
-    console.error('CRITICAL - Report generation error:', err.message)
+    console.error('Report generation error:', err.message)
     reportText = 'BOOST Blueprint Report for ' + contact.fullName + '\n\nProfile: ' + personality.primaryProfile.name + ' | Gap: ' + primaryGap.pillar + ' | Program: ' + program + '\n\nBook your strategy call: https://realwiseacademy.com'
   }
 
@@ -265,98 +283,47 @@ Now write the report. Start with SECTION 1.`
   const okResponse = new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } })
 
   try {
-    const resendKey = process.env.RESEND_API_KEY
-    if (!resendKey) {
-      console.error('RESEND_API_KEY not set')
-    } else {
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + resendKey },
-        body: JSON.stringify({ 
-          from: 'John Dessauer | RealWise Academy <john@thedessauergroup.com>', 
-          to: [contact.email], 
-          subject: 'Your BOOST Blueprint Report is Ready, ' + contact.fullName.split(' ')[0] + '!', 
-          html 
-        }),
-      })
-      const emailResult = await res.json()
-      console.log('Respondent email sent:', emailResult.id || emailResult.error || 'unknown result')
-    }
-  } catch (err) { 
-    console.error('Respondent email error:', err.message) 
-  }
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.RESEND_API_KEY },
+      body: JSON.stringify({ from: 'John Dessauer | RealWise Academy <john@thedessauergroup.com>', to: [contact.email], subject: 'Your BOOST Blueprint Report is Ready, ' + contact.fullName.split(' ')[0] + '!', html }),
+    })
+    const emailResult = await res.json()
+    console.log('Respondent email:', JSON.stringify(emailResult).substring(0, 200))
+  } catch (err) { console.error('Respondent email error:', err.message) }
 
   try {
-    const resendKey = process.env.RESEND_API_KEY
-    const ownerEmail = process.env.OWNER_EMAIL
-    
-    if (!resendKey) {
-      console.error('RESEND_API_KEY not set for owner email')
-    } else if (!ownerEmail) {
-      console.error('OWNER_EMAIL not set')
-    } else {
-      const telLink = 'tel:' + contact.phone.replace(/\D/g, '')
-      const ownerHtml = '<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">'
-        + '<div style="background:#1A1A1A;padding:20px;border-radius:8px 8px 0 0"><h2 style="color:#fff;margin:0">New Assessment: ' + contact.fullName + '</h2></div>'
-        + '<div style="background:#E4181B;padding:12px 20px"><h3 style="color:#fff;margin:0">' + personality.primaryProfile.name + '/' + personality.secondaryProfile.name + ' | Gap: ' + primaryGap.pillar + ' (' + primaryGap.score + ')</h3></div>'
-        + '<div style="border:1px solid #eee;border-top:none;padding:20px;border-radius:0 0 8px 8px">'
-        + '<table cellpadding="6" cellspacing="0" width="100%">'
-        + '<tr><td style="font-weight:600;width:130px">Name:</td><td>' + contact.fullName + '</td></tr>'
-        + '<tr><td style="font-weight:600">Email:</td><td><a href="mailto:' + contact.email + '" style="color:#E4181B">' + contact.email + '</a></td></tr>'
-        + '<tr><td style="font-weight:600">Phone:</td><td><a href="' + telLink + '" style="color:#E4181B;font-size:18px;font-weight:700">' + contact.phone + '</a></td></tr>'
-        + '<tr><td style="font-weight:600">Industry:</td><td>' + (context.industry||'N/A') + '</td></tr>'
-        + '<tr><td style="font-weight:600">Role:</td><td>' + (context.role||'N/A') + '</td></tr>'
-        + '<tr><td style="font-weight:600">Gap:</td><td style="color:#E4181B;font-weight:700">' + primaryGap.pillar + ' (' + primaryGap.score + ')</td></tr>'
-        + '<tr><td style="font-weight:600">Program:</td><td><strong>' + program + '</strong></td></tr>'
-        + '</table>'
-        + '<div style="margin-top:20px;text-align:center"><a href="' + telLink + '" style="display:inline-block;background:#1A5C38;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-size:18px">Call ' + contact.fullName.split(' ')[0] + ' Now</a></div>'
-        + '</div></body></html>'
+    const telLink = 'tel:' + contact.phone.replace(/\D/g, '')
+    const ownerHtml = '<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">'
+      + '<div style="background:#1A1A1A;padding:20px;border-radius:8px 8px 0 0"><h2 style="color:#fff;margin:0">New Assessment: ' + contact.fullName + '</h2></div>'
+      + '<div style="background:#E4181B;padding:12px 20px"><h3 style="color:#fff;margin:0">' + personality.primaryProfile.name + '/' + personality.secondaryProfile.name + ' | Gap: ' + primaryGap.pillar + ' (' + primaryGap.score + ')</h3></div>'
+      + '<div style="border:1px solid #eee;border-top:none;padding:20px;border-radius:0 0 8px 8px">'
+      + '<table cellpadding="6" cellspacing="0" width="100%">'
+      + '<tr><td style="font-weight:600;width:130px">Name:</td><td>' + contact.fullName + '</td></tr>'
+      + '<tr><td style="font-weight:600">Email:</td><td><a href="mailto:' + contact.email + '" style="color:#E4181B">' + contact.email + '</a></td></tr>'
+      + '<tr><td style="font-weight:600">Phone:</td><td><a href="' + telLink + '" style="color:#E4181B;font-size:18px;font-weight:700">' + contact.phone + '</a></td></tr>'
+      + '<tr><td style="font-weight:600">Industry:</td><td>' + (context.industry||'N/A') + '</td></tr>'
+      + '<tr><td style="font-weight:600">Role:</td><td>' + (context.role||'N/A') + '</td></tr>'
+      + '<tr><td style="font-weight:600">Gap:</td><td style="color:#E4181B;font-weight:700">' + primaryGap.pillar + ' (' + primaryGap.score + ')</td></tr>'
+      + '<tr><td style="font-weight:600">Program:</td><td><strong>' + program + '</strong></td></tr>'
+      + '</table>'
+      + '<div style="margin-top:20px;text-align:center"><a href="' + telLink + '" style="display:inline-block;background:#1A5C38;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-size:18px">Call ' + contact.fullName.split(' ')[0] + ' Now</a></div>'
+      + '</div></body></html>'
 
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + resendKey },
-        body: JSON.stringify({ 
-          from: 'BOOST Assessment <john@thedessauergroup.com>', 
-          to: [ownerEmail], 
-          subject: 'New Assessment: ' + contact.fullName + ' | ' + personality.primaryProfile.name + ' | Gap: ' + primaryGap.pillar, 
-          html: ownerHtml 
-        }),
-      })
-      const ownerResult = await res.json()
-      console.log('Owner email sent:', ownerResult.id || ownerResult.error || 'unknown result')
-    }
-  } catch (err) { 
-    console.error('Owner email error:', err.message) 
-  }
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.RESEND_API_KEY },
+      body: JSON.stringify({ from: 'BOOST Assessment <john@thedessauergroup.com>', to: [process.env.OWNER_EMAIL], subject: 'New Assessment: ' + contact.fullName + ' | ' + personality.primaryProfile.name + ' | Gap: ' + primaryGap.pillar, html: ownerHtml }),
+    })
+    const ownerResult = await res.json()
+    console.log('Owner email:', JSON.stringify(ownerResult).substring(0, 200))
+  } catch (err) { console.error('Owner email error:', err.message) }
 
   try {
-    const listId = process.env.EMAIL_OCTOPUS_LIST_ID
-    const apiKey = process.env.EMAIL_OCTOPUS_API_KEY
-    
-    if (!listId || !apiKey) {
-      console.warn('Email Octopus credentials not fully set (LIST_ID or API_KEY missing)')
-    } else {
-      await fetch('https://emailoctopus.com/api/1.6/lists/' + listId + '/contacts', {
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          api_key: apiKey, 
-          email_address: contact.email, 
-          fields: { 
-            FirstName: contact.fullName.split(' ')[0], 
-            LastName: contact.fullName.split(' ').slice(1).join(' '), 
-            Phone: contact.phone 
-          }, 
-          tags: ['boost-assessment-completed', 'profile-' + personality.primaryProfile.name.toLowerCase(), 'gap-' + primaryGap.pillar.toLowerCase().replace(/ /g, '-')], 
-          status: 'SUBSCRIBED' 
-        }),
-      })
-      console.log('Email Octopus tagged successfully')
-    }
-  } catch (err) { 
-    console.error('Email Octopus error:', err.message) 
-  }
+    await fetch('https://emailoctopus.com/api/1.6/lists/' + process.env.EMAIL_OCTOPUS_LIST_ID + '/contacts', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_key: process.env.EMAIL_OCTOPUS_API_KEY, email_address: contact.email, fields: { FirstName: contact.fullName.split(' ')[0], LastName: contact.fullName.split(' ').slice(1).join(' '), Phone: contact.phone }, tags: ['boost-assessment-completed', 'profile-' + personality.primaryProfile.name.toLowerCase(), 'gap-' + primaryGap.pillar.toLowerCase().replace(/ /g, '-')], status: 'SUBSCRIBED' }),
+    })
+    console.log('Email Octopus tagged successfully')
+  } catch (err) { console.error('Email Octopus error:', err.message) }
 
-  console.log('Assessment submission complete for:', contact.email)
   return okResponse
 }
