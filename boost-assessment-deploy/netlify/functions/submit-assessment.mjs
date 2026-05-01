@@ -118,7 +118,7 @@ SECTION 7: 90-DAY IMPLEMENTATION ROADMAP (2 paragraphs)
 Month 1, Month 2, Month 3. Specific actions each month. Metrics/results to track. Quick wins vs. long-term changes.
 
 SECTION 8: THE BUSINESS CASE & NEXT STEP (1 paragraph)
-Revenue impact of closing ${primaryGap.pillar} (estimate annual $). ROI calculation. Clear CTA: Book strategy call at www.realwiseacademy.com. Inspirational close.
+Revenue impact of closing ${primaryGap.pillar} (estimate annual $). ROI calculation. Clear CTA: "Don't let another quarter pass leaving money on the table—book your complimentary BOOST Strategy Session where we'll create your personalized plan and show you exactly how to transform your relationship-building superpower into consistent revenue growth." Make "BOOST Strategy Session" a hyperlink to https://www.calendly.com/johndessauer
 
 Keep it data-driven, no fluff. Be specific to their profile and situation.`
 
@@ -200,7 +200,7 @@ Keep it data-driven, no fluff. Be specific to their profile and situation.`
     + '<div style="margin:0 32px 32px;background:#1A1A1A;border-radius:12px;padding:28px 32px;text-align:center">'
     + '<h3 style="color:#ffffff;margin:0 0 8px">Ready to Build on This?</h3>'
     + '<p style="color:#cccccc;font-size:14px;margin:0 0 20px">Book a complimentary 30-minute Strategy Call with John Dessauer.</p>'
-    + '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table cellpadding="0" cellspacing="0"><tr><td style="background:#1A5C38;border-radius:8px"><a href="https://realwiseacademy.com/#programs" style="display:inline-block;background:#1A5C38;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-family:Arial,sans-serif">Book Your Strategy Call</a></td></tr></table></td></tr></table>'
+    + '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table cellpadding="0" cellspacing="0"><tr><td style="background:#1A5C38;border-radius:8px"><a href="https://www.calendly.com/johndessauer" style="display:inline-block;background:#1A5C38;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-family:Arial,sans-serif">Book Your Strategy Call</a></td></tr></table></td></tr></table>'
     + '</div>'
     + '<div style="padding:20px 32px;border-top:1px solid #eee;text-align:center"><p style="font-size:12px;color:#999;margin:0">2026 Dessauer Group II LLC | RealWise Academy</p></div>'
     + '</div></body></html>'
