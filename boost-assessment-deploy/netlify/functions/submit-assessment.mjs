@@ -94,45 +94,27 @@ export default async (req) => {
   try {
     const scores = Object.values(boostScores).map(s => s.pillar + ': ' + s.score + ' (' + s.status + ')').join(', ')
     
-    const prompt = `Create an 8-section personalized BOOST Blueprint report for ${contact.fullName}.
+    const prompt = `Write a 6-section personalized BOOST report for ${contact.fullName} (${personality.primaryProfile.name}/${personality.secondaryProfile.name}, Gap: ${primaryGap.pillar} at ${primaryGap.score}).
 
-RESPONDENT DATA:
-- Name: ${contact.fullName}
-- Role: ${context.role || 'Sales Professional'}
-- Industry: ${context.industry || 'Sales'}
-- Personality: ${personality.primaryProfile.name} (primary) / ${personality.secondaryProfile.name} (secondary)
-- Top Strength: ${topStrength.pillar} (${topStrength.score})
-- Primary Gap: ${primaryGap.pillar} (${primaryGap.score})
-- BOOST Scores: ${scores}
-- Recommended Program: ${program}
+SECTION 1: EXECUTIVE SUMMARY (1 paragraph)
+They're a ${personality.primaryProfile.name}-${personality.secondaryProfile.name} hybrid. Gap in ${primaryGap.pillar} is costing revenue. Strength in ${topStrength.pillar} is their foundation. Urgent but hopeful tone.
 
-WRITE 8 SECTIONS (keep each 2-3 paragraphs, total ~6-8 pages):
+SECTION 2: YOUR PERSONALITY BLUEPRINT (1 paragraph)
+${personality.primaryProfile.name} with ${personality.secondaryProfile.name} secondary = [explain briefly]. Why they sell this way. Superpowers and blind spots.
 
-SECTION 1: EXECUTIVE SUMMARY
-Lead with impact. They're a ${personality.primaryProfile.name}-${personality.secondaryProfile.name} hybrid. Their primary gap (${primaryGap.pillar} at ${primaryGap.score}) is costing them revenue. Their strength (${topStrength.pillar}) is their foundation. Make it urgent but hopeful.
+SECTION 3: YOUR BOOST SCORECARD (1 paragraph)
+Walk through 5 pillars with scores. What each means. Real-world impact.
 
-SECTION 2: YOUR PERSONALITY BLUEPRINT
-Explain what it means to be ${personality.primaryProfile.name} with ${personality.secondaryProfile.name} secondary. Use psychology. Why do they sell this way? What are their superpowers and blind spots?
+SECTION 4: YOUR PRIMARY GAP - ${primaryGap.pillar.toUpperCase()} (1 paragraph)
+At ${primaryGap.score}. Why ${personality.primaryProfile.name} profiles struggle here. Cost of gap. Specific behaviors creating it.
 
-SECTION 3: YOUR BOOST SCORECARD DECODED
-Walk through all 5 pillars. For each: the score, what it means, real-world impact. Use concrete examples. Explain Strengths (80+), Developing (60-79), Gaps (below 60).
+SECTION 5: YOUR TOP STRENGTH - ${topStrength.pillar.toUpperCase()} (1 paragraph)
+At ${topStrength.score}. How to leverage MORE. How it masks the gap.
 
-SECTION 4: YOUR PRIMARY GAP: ${primaryGap.pillar.toUpperCase()}
-Deep dive into their biggest opportunity at ${primaryGap.score}. Why do ${personality.primaryProfile.name} profiles struggle here? What does this gap cost? What specific behaviors are creating it?
+SECTION 6: YOUR ACTION & NEXT STEP (1 paragraph)
+3 concrete strategies to close ${primaryGap.pillar}. 90-day quick wins. ROI estimate. CTA: Book strategy call at www.realwiseacademy.com.
 
-SECTION 5: YOUR TOP STRENGTH: ${topStrength.pillar.toUpperCase()}
-Celebrate their superpower at ${topStrength.score}. How can they leverage this MORE? How does this strength mask or compensate for their gap?
-
-SECTION 6: SCIENCE-BACKED STRATEGIES TO CLOSE YOUR GAP
-Provide 3 concrete, research-backed approaches to improving ${primaryGap.pillar}. Ground each in behavioral psychology. Specific to their personality type.
-
-SECTION 7: YOUR 90-DAY IMPLEMENTATION ROADMAP
-Month-by-month picture. What in Month 1? Month 2? Month 3? What results should they expect? Include metrics.
-
-SECTION 8: THE BUSINESS CASE & YOUR NEXT STEP
-Show the math: what closing this gap is worth in annual revenue. Frame as ROI. Then: Book a complimentary 30-minute Strategy Call with John Dessauer at www.realwiseacademy.com.
-
-TONE: Professional, data-driven, empowering. Every sentence earns its place. No fluff.`
+Keep it concise. Data-driven. No fluff. Each section = 1 paragraph max.`
 
     const apiKey = process.env.ANTHROPIC_API_KEY
     
@@ -152,7 +134,7 @@ TONE: Professional, data-driven, empowering. Every sentence earns its place. No 
       },
       body: JSON.stringify({ 
         model: 'claude-opus-4-20250514',
-        max_tokens: 8000, 
+        max_tokens: 5000, 
         messages: [{ role: 'user', content: prompt }] 
       }),
     })
