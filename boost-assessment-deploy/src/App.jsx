@@ -41,9 +41,12 @@ export default function App() {
   }
 
   const handleAssessmentSubmit = () => {
-    sessionStorage.removeItem('boost_contact')
+  sessionStorage.removeItem('boost_contact')
+  // Small delay to ensure error state is cleared before transition
+  setTimeout(() => {
     setStep(STEPS.DONE)
-  }
+  }, 100)
+}
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8f8f8' }}>
