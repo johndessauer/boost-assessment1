@@ -55,7 +55,7 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
   }
 
   // ── Submit ───────────────────────────────────────────────────────────────────
-  const handleSubmit = async () => {
+ const handleSubmit = async () => {
     setSubmitting(true)
     setError('')
     try {
@@ -64,10 +64,24 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contact, paymentIntent, rankings, ratings, context }),
       })
+      
+      if (!res.ok) {
+        const data = await res.json()
+        setError(data.error || 'Submission failed. Please try again.')
+        setSubmitting(false)
+        return
+      }
+      
       const data = await res.json()
-      if (!data.ok) { setError(data.error || 'Submission failed. Please try again.'); setSubmitting(false); return }
-      onSubmit()
-    } catch {
+      if (data.ok) {
+        setError('')
+        setSubmitting(false)
+        onSubmit()
+      } else {
+        setError(data.error || 'Submission failed. Please try again.')
+        setSubmitting(false)
+      }
+    } catch (err) {
       setError('Something went wrong. Please try again.')
       setSubmitting(false)
     }
