@@ -45,7 +45,7 @@ export default function App() {
   // Small delay to ensure error state is cleared before transition
   setTimeout(() => {
     setStep(STEPS.DONE)
-  }, 300)
+  }, 1000)
 }
 
   return (
