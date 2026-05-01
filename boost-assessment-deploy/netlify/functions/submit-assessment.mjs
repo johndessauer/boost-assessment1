@@ -140,7 +140,7 @@ Keep it data-driven, no fluff. Be specific to their profile and situation.`
       },
       body: JSON.stringify({ 
         model: 'claude-opus-4-20250514',
-        max_tokens: 6000, 
+        max_tokens: 5500, 
         messages: [{ role: 'user', content: prompt }] 
       }),
     })
