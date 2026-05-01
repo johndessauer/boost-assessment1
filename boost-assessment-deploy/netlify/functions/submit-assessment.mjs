@@ -94,31 +94,25 @@ export default async (req) => {
   try {
     const scores = Object.values(boostScores).map(s => s.pillar + ': ' + s.score + ' (' + s.status + ')').join(', ')
     
-    const prompt = `Write an 8-section personalized BOOST report for ${contact.fullName} (${personality.primaryProfile.name}/${personality.secondaryProfile.name}, Gap: ${primaryGap.pillar} at ${primaryGap.score}).
+    const prompt = `Write a 6-section personalized BOOST report for ${contact.fullName} (${personality.primaryProfile.name}/${personality.secondaryProfile.name}, Gap: ${primaryGap.pillar} at ${primaryGap.score}).
 
 SECTION 1: EXECUTIVE SUMMARY (1 paragraph)
 Impact statement. They're a ${personality.primaryProfile.name}-${personality.secondaryProfile.name} hybrid. Gap in ${primaryGap.pillar} costs revenue. Strength in ${topStrength.pillar} is foundation. Urgent but hopeful.
 
-SECTION 2: YOUR PERSONALITY BLUEPRINT (1-2 paragraphs)
-Explain ${personality.primaryProfile.name} with ${personality.secondaryProfile.name} secondary in depth. Why they sell this way. Superpowers, blind spots, sales approach.
+SECTION 2: YOUR PERSONALITY BLUEPRINT (1 paragraph)
+Explain ${personality.primaryProfile.name} with ${personality.secondaryProfile.name} secondary. Why they sell this way. Superpowers, blind spots, sales approach.
 
-SECTION 3: YOUR BOOST SCORECARD DECODED (1-2 paragraphs)
+SECTION 3: YOUR BOOST SCORECARD DECODED (1 paragraph)
 Walk through all 5 pillars with scores. What each means. Real-world impact. Strengths, Developing areas, Gaps.
 
-SECTION 4: YOUR PRIMARY GAP - ${primaryGap.pillar.toUpperCase()} (2 paragraphs)
-At ${primaryGap.score}. Why ${personality.primaryProfile.name} struggle here. Cost of gap (revenue impact). Specific behaviors creating it. Root cause.
+SECTION 4: YOUR PRIMARY GAP - ${primaryGap.pillar.toUpperCase()} (1 paragraph)
+At ${primaryGap.score}. Why ${personality.primaryProfile.name} struggle here. Cost of gap (revenue impact). Specific behaviors creating it.
 
 SECTION 5: YOUR TOP STRENGTH - ${topStrength.pillar.toUpperCase()} (1 paragraph)
 At ${topStrength.score}. How to leverage MORE. How it masks/compensates for gap. Untapped potential.
 
-SECTION 6: SCIENCE-BACKED STRATEGIES (2 paragraphs)
-3-4 concrete, research-backed strategies to close ${primaryGap.pillar}. Grounded in psychology. Specific to ${personality.primaryProfile.name} personality. Actionable tactics.
-
-SECTION 7: 90-DAY IMPLEMENTATION ROADMAP (2 paragraphs)
-Month 1, Month 2, Month 3. Specific actions each month. Metrics/results to track. Quick wins vs. long-term changes.
-
-SECTION 8: THE BUSINESS CASE & NEXT STEP (1 paragraph)
-Revenue impact of closing ${primaryGap.pillar} (estimate annual $). ROI calculation. Clear CTA: "Don't let another quarter pass leaving money on the table—book your complimentary BOOST Strategy Session where we'll create your personalized plan and show you exactly how to transform your relationship-building superpower into consistent revenue growth." Make "BOOST Strategy Session" a hyperlink to https://www.calendly.com/johndessauer
+SECTION 6: SCIENCE-BACKED STRATEGIES & NEXT STEP (1-2 paragraphs)
+3 concrete, research-backed strategies to close ${primaryGap.pillar}. Grounded in psychology. Specific to ${personality.primaryProfile.name} personality. Include 90-day quick wins. Show revenue impact of closing gap. End with: "Don't let another quarter pass leaving money on the table—book your complimentary BOOST Strategy Session where we'll create your personalized plan and show you exactly how to transform your relationship-building superpower into consistent revenue growth."
 
 Keep it data-driven, no fluff. Be specific to their profile and situation.`
 
@@ -140,7 +134,7 @@ Keep it data-driven, no fluff. Be specific to their profile and situation.`
       },
       body: JSON.stringify({ 
         model: 'claude-opus-4-20250514',
-        max_tokens: 5500, 
+        max_tokens: 5000, 
         messages: [{ role: 'user', content: prompt }] 
       }),
     })
