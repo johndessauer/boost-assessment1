@@ -135,7 +135,7 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
       </div>
     </div>
   )
-}
+
 
 // ─── PART 1: PERSONALITY RANKING ──────────────────────────────────────────────
 function Part1({ rankings, setRank, onNext, error }) {
