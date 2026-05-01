@@ -209,4 +209,145 @@ function Part2({ ratings, setRatings, onBack, onNext, error }) {
     setRatings(prev => {
       const next = { ...prev }
       next[sectionId] = [...prev[sectionId]]
-      next[sectionId][qInde
+      next[sectionId][qIndex] = val
+      return next
+    })
+  }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        <div style={{ width: 4, height: 44, background: colors.red, borderRadius: 2 }} />
+        <div>
+          <h2 style={styles.h2}>Part 2 — Sales Skill Assessment</h2>
+          <p style={{ fontSize: 14, color: colors.darkGray }}>Rate each statement <strong>1–5</strong> based on how consistently it describes you.</p>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
+        {[1,2,3,4,5].map(n => (
+          <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 6, background: colors.lightGray, borderRadius: 6, padding: '6px 12px' }}>
+            <span style={{ fontWeight: 700, color: scaleColors[n], fontSize: 15 }}>{n}</span>
+            <span style={{ fontSize: 12, color: colors.darkGray }}>{scaleLabels[n]}</span>
+          </div>
+        ))}
+      </div>
+
+      {skillSections.map((section, si) => {
+        const rawScore = ratings[section.id].reduce((sum, v) => sum + (Number(v) || 0), 0)
+        const allRated = ratings[section.id].every(v => v !== '')
+        return (
+          <div key={section.id} style={{ marginBottom: 28 }}>
+            <div style={{ background: colors.black, borderRadius: '8px 8px 0 0', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: colors.white, fontWeight: 700, fontSize: 15 }}>{section.label}</span>
+              <span style={{ color: colors.midGray, fontSize: 13, fontStyle: 'italic' }}>Questions {si * 4 + 1}–{si * 4 + 4}</span>
+            </div>
+
+            {section.questions.map((q, qi) => (
+              <div key={qi} style={{
+                display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'center',
+                background: qi % 2 === 0 ? colors.white : colors.lightGray,
+                padding: '14px 16px', borderLeft: `3px solid ${colors.border}`, borderRight: `3px solid ${colors.border}`,
+                borderBottom: `1px solid ${colors.border}`,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontWeight: 700, color: colors.red, fontSize: 15, minWidth: 24 }}>{si * 4 + qi + 1}</span>
+                  <span style={{ fontSize: 14, color: colors.black, lineHeight: 1.5 }}>{q}</span>
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {[1,2,3,4,5].map(n => (
+                    <button
+                      key={n}
+                      onClick={() => setRating(section.id, qi, String(n))}
+                      style={{
+                        width: 36, height: 36, borderRadius: 6, border: `2px solid`,
+                        borderColor: ratings[section.id][qi] === String(n) ? scaleColors[n] : colors.border,
+                        background: ratings[section.id][qi] === String(n) ? scaleColors[n] : colors.white,
+                        color: ratings[section.id][qi] === String(n) ? colors.white : colors.darkGray,
+                        fontWeight: 700, fontSize: 14, cursor: 'pointer', transition: 'all 0.15s',
+                      }}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            <div style={{ background: colors.lightGray, borderRadius: '0 0 8px 8px', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: `3px solid ${colors.border}`, borderTop: 'none' }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: colors.darkGray }}>{section.label} Raw Score</span>
+              <span style={{ fontWeight: 700, color: allRated ? colors.red : colors.midGray, fontSize: 16 }}>
+                {allRated ? rawScore : '_ _'} / 20
+              </span>
+            </div>
+          </div>
+        )
+      })}
+
+      {error && <div style={{ color: colors.red, fontSize: 14, padding: '10px 14px', background: '#FFF0F0', borderRadius: 6, marginBottom: 16 }}>{error}</div>}
+
+      <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+        <button onClick={onBack} style={{ ...styles.btnSecondary, flex: '0 0 auto' }}>← Back</button>
+        <button onClick={onNext} style={{ ...styles.btnPrimary, flex: 1 }}>Continue to Part 3 — Context  →</button>
+      </div>
+    </div>
+  )
+}
+
+function Part3({ context, setContext, onBack, onSubmit, submitting, error }) {
+  const setField = (id, val) => setContext(prev => ({ ...prev, [id]: val }))
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        <div style={{ width: 4, height: 44, background: colors.red, borderRadius: 2 }} />
+        <div>
+          <h2 style={styles.h2}>Part 3 — Context Questions</h2>
+          <p style={{ fontSize: 14, color: colors.darkGray }}>These questions help personalize your report. They do not affect your scores.</p>
+        </div>
+      </div>
+
+      {contextQuestions.map((q, i) => (
+        <div key={q.id} style={{ marginBottom: 20 }}>
+          <label style={styles.label}>
+            {i + 1}. {q.question}
+            {['industry','role','experience','challenge','goal'].includes(q.id) && (
+              <span style={{ color: colors.red, marginLeft: 4 }}>*</span>
+            )}
+          </label>
+          {q.type === 'text' ? (
+            <input
+              type="text"
+              placeholder={q.placeholder}
+              value={context[q.id]}
+              onChange={e => setField(q.id, e.target.value)}
+              style={{ ...styles.input, marginBottom: 0 }}
+            />
+          ) : (
+            <select
+              value={context[q.id]}
+              onChange={e => setField(q.id, e.target.value)}
+              style={{ ...styles.select, marginBottom: 0 }}
+            >
+              <option value="">Select an option...</option>
+              {q.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+            </select>
+          )}
+        </div>
+      ))}
+
+      <div style={{ background: colors.lightGray, borderRadius: 8, padding: '14px 18px', marginTop: 8, marginBottom: 20, fontSize: 13, color: colors.darkGray }}>
+        🎉 <strong>You're almost done!</strong> Click submit and your personalized BOOST Blueprint Report will be emailed to <strong>{/* contact email passed via prop */}</strong> within a few minutes.
+      </div>
+
+      {error && <div style={{ color: colors.red, fontSize: 14, padding: '10px 14px', background: '#FFF0F0', borderRadius: 6, marginBottom: 16 }}>{error}</div>}
+
+      <div style={{ display: 'flex', gap: 12 }}>
+        <button onClick={onBack} style={{ ...styles.btnSecondary, flex: '0 0 auto' }} disabled={submitting}>← Back</button>
+        <button onClick={onSubmit} style={{ ...styles.btnPrimary, flex: 1 }} disabled={submitting}>
+          {submitting ? '⏳ Generating your report...' : '🚀 Submit & Get My Report'}
+        </button>
+      </div>
+    </div>
+  )
+}
