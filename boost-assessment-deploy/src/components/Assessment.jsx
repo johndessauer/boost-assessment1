@@ -434,7 +434,7 @@ function Part3({ context, setContext, onBack, onSubmit, submitting, error }) {
       ))}
 
       <div style={{ background: colors.lightGray, borderRadius: 8, padding: '14px 18px', marginTop: 8, marginBottom: 20, fontSize: 13, color: colors.darkGray }}>
-        🎉 <strong>You're almost done!</strong> Click submit and your personalized BOOST Blueprint Report will be emailed to <strong>{contact?.email}</strong> within moments.
+        🎉 <strong>You're almost done!</strong> Click submit and your personalized BOOST Blueprint Report will be emailed to <strong>{contact && contact.email ? contact.email : 'your email'}</strong> within moments.
       </div>
 
       {error && <div style={{ color: colors.red, fontSize: 14, padding: '10px 14px', background: '#FFF0F0', borderRadius: 6, marginBottom: 16 }}>{error}</div>}
