@@ -1,3 +1,4 @@
+ // Fixed syntax
 const profileLabels = {
   A: { name: 'Purple', style: 'Warm / Relational' },
   B: { name: 'Gold',   style: 'Analytical / Deliberate' },
