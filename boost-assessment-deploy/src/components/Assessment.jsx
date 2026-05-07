@@ -60,6 +60,10 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
         body: JSON.stringify({ contact, paymentIntent, rankings, ratings, context }),
       })
       
+      if (!res.ok) {
+        throw new Error('Submission failed')
+      }
+      
       setError('')
       setSubmitting(false)
       setTimeout(() => onSubmit(), 500)
@@ -76,6 +80,7 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
 
   return (
     <div style={styles.page}>
+      {submitting && <LoadingModal />}
       <Header />
       <div style={{ ...styles.cardWide, marginTop: 0 }}>
         <div style={{ marginBottom: 8, fontSize: 14, color: colors.midGray, fontWeight: 600 }}>
@@ -126,6 +131,96 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
           />
         )}
       </div>
+    </div>
+  )
+}
+
+function LoadingModal() {
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 9999,
+    }}>
+      <div style={{
+        background: colors.white,
+        borderRadius: 12,
+        padding: 48,
+        textAlign: 'center',
+        maxWidth: 400,
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+      }}>
+        <Spinner />
+        <h2 style={{
+          fontSize: 24,
+          fontWeight: 700,
+          color: colors.black,
+          margin: '24px 0 12px',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+        }}>
+          Generating Your Report
+        </h2>
+        <p style={{
+          fontSize: 15,
+          color: colors.darkGray,
+          margin: '0 0 8px',
+          lineHeight: 1.5,
+        }}>
+          We're analyzing your responses and creating your personalized BOOST Blueprint Report.
+        </p>
+        <p style={{
+          fontSize: 13,
+          color: colors.midGray,
+          margin: 0,
+          fontStyle: 'italic',
+        }}>
+          This typically takes 10–15 seconds...
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function Spinner() {
+  return (
+    <div style={{
+      width: 48,
+      height: 48,
+      margin: '0 auto',
+      position: 'relative',
+    }}>
+      <svg
+        viewBox="0 0 50 50"
+        style={{
+          animation: 'spin 1s linear infinite',
+          width: '100%',
+          height: '100%',
+        }}
+      >
+        <circle
+          cx="25"
+          cy="25"
+          r="20"
+          fill="none"
+          stroke={colors.red}
+          strokeWidth="3"
+          strokeDasharray="31.4 62.8"
+          strokeLinecap="round"
+        />
+      </svg>
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   )
 }
@@ -322,12 +417,14 @@ function Part3({ context, setContext, onBack, onSubmit, submitting, error }) {
               value={context[q.id]}
               onChange={e => setField(q.id, e.target.value)}
               style={{ ...styles.input, marginBottom: 0 }}
+              disabled={submitting}
             />
           ) : (
             <select
               value={context[q.id]}
               onChange={e => setField(q.id, e.target.value)}
               style={{ ...styles.select, marginBottom: 0 }}
+              disabled={submitting}
             >
               <option value="">Select an option...</option>
               {q.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -337,7 +434,7 @@ function Part3({ context, setContext, onBack, onSubmit, submitting, error }) {
       ))}
 
       <div style={{ background: colors.lightGray, borderRadius: 8, padding: '14px 18px', marginTop: 8, marginBottom: 20, fontSize: 13, color: colors.darkGray }}>
-        🎉 <strong>You're almost done!</strong> Click submit and your personalized BOOST Blueprint Report will be emailed to <strong>{/* contact email passed via prop */}</strong> within a few minutes.
+        🎉 <strong>You're almost done!</strong> Click submit and your personalized BOOST Blueprint Report will be emailed to <strong>{contact?.email}</strong> within moments.
       </div>
 
       {error && <div style={{ color: colors.red, fontSize: 14, padding: '10px 14px', background: '#FFF0F0', borderRadius: 6, marginBottom: 16 }}>{error}</div>}
@@ -345,7 +442,7 @@ function Part3({ context, setContext, onBack, onSubmit, submitting, error }) {
       <div style={{ display: 'flex', gap: 12 }}>
         <button onClick={onBack} style={{ ...styles.btnSecondary, flex: '0 0 auto' }} disabled={submitting}>← Back</button>
         <button onClick={onSubmit} style={{ ...styles.btnPrimary, flex: 1 }} disabled={submitting}>
-          {submitting ? '⏳ Generating your report...' : '🚀 Submit & Get My Report'}
+          {submitting ? '⏳ Processing...' : '🚀 Submit & Get My Report'}
         </button>
       </div>
     </div>
