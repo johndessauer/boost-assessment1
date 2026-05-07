@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Header, ProgressBar, styles, colors } from '../styles.jsx'
 import { personalityRows, skillSections, contextQuestions } from '../config.js'
 
 const PARTS = { P1: 'personality', P2: 'skills', P3: 'context' }
+const STORAGE_KEY = 'boost-assessment-form'
 
 export default function Assessment({ contact, paymentIntent, onSubmit }) {
   const [part, setPart] = useState(PARTS.P1)
@@ -24,6 +25,48 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
     Object.fromEntries(contextQuestions.map(q => [q.id, '']))
   )
 
+  // ── Load from localStorage on mount ──────────────────────────────────────────
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        const data = JSON.parse(saved)
+        if (data.rankings) setRankings(data.rankings)
+        if (data.ratings) setRatings(data.ratings)
+        if (data.context) setContext(data.context)
+        if (data.part) setPart(data.part)
+        console.log('Loaded form data from localStorage')
+      }
+    } catch (err) {
+      console.warn('Could not load saved form data:', err.message)
+    }
+  }, [])
+
+  // ── Save to localStorage whenever form data changes ──────────────────────────
+  const saveToLocalStorage = (newPart, newRankings, newRatings, newContext) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        part: newPart,
+        rankings: newRankings,
+        ratings: newRatings,
+        context: newContext,
+        timestamp: new Date().toISOString()
+      }))
+    } catch (err) {
+      console.warn('Could not save to localStorage:', err.message)
+    }
+  }
+
+  // ── Clear localStorage after successful submission ──────────────────────────
+  const clearLocalStorage = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+      console.log('Cleared form data from localStorage')
+    } catch (err) {
+      console.warn('Could not clear localStorage:', err.message)
+    }
+  }
+
   // ── Validation ──────────────────────────────────────────────────────────────
   const validateP1 = () => {
     for (let i = 0; i < rankings.length; i++) {
@@ -42,32 +85,15 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
   }
 
   const validateP3 = () => {
-  const required = ['industry', 'role', 'experience', 'challenge', 'goal']
-  
-  if (context.role === 'Entrepreneur') {
-    required.push('business_structure')
+    const required = ['industry', 'role', 'experience', 'challenge', 'goal']
+    return required.every(id => context[id] !== '')
   }
-  
-  const isTeamLead = ['Sales Manager', 'Business Owner'].includes(context.role) || 
-                     (context.role === 'Entrepreneur' && context.business_structure === 'Yes, I have a small team')
-  if (isTeamLead) {
-    required.push('team_challenges')
-  }
-  
-  return required.every(id => {
-    if (Array.isArray(context[id])) {
-      return context[id] && context[id].length > 0
-    }
-    return context[id] !== ''
-  })
-}
 
   // ── Ranking input handler ────────────────────────────────────────────────────
   const setRank = (rowIndex, col, val) => {
-    setRankings(prev => {
-      const next = prev.map((r, i) => i === rowIndex ? { ...r, [col]: val } : r)
-      return next
-    })
+    const next = rankings.map((r, i) => i === rowIndex ? { ...r, [col]: val } : r)
+    setRankings(next)
+    saveToLocalStorage(part, next, ratings, context)
   }
 
   // ── Submit ───────────────────────────────────────────────────────────────────
@@ -75,16 +101,22 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
     setSubmitting(true)
     setError('')
     try {
-      const res = await fetch('/api/submit-assessment', {
+      const res = await fetch('/.netlify/functions/submit-assessment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contact, paymentIntent, rankings, ratings, context }),
       })
       const data = await res.json()
-      if (!data.ok) { setError(data.error || 'Submission failed. Please try again.'); setSubmitting(false); return }
+      if (!data.ok) { 
+        setError(data.error || 'Submission failed. Please try again.') 
+        setSubmitting(false) 
+        return 
+      }
+      clearLocalStorage()
       onSubmit()
-    } catch {
+    } catch (err) {
       setError('Something went wrong. Please try again.')
+      console.error('Submit error:', err)
       setSubmitting(false)
     }
   }
@@ -111,7 +143,10 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
             setRank={setRank}
             onNext={() => {
               if (!validateP1()) { setError('Please complete all rows. Each row must use 1, 2, 3, and 4 exactly once.'); return }
-              setError(''); setPart(PARTS.P2)
+              setError('')
+              const newPart = PARTS.P2
+              setPart(newPart)
+              saveToLocalStorage(newPart, rankings, ratings, context)
             }}
             error={error}
           />
@@ -120,11 +155,22 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
         {part === PARTS.P2 && (
           <Part2
             ratings={ratings}
-            setRatings={setRatings}
-            onBack={() => { setError(''); setPart(PARTS.P1) }}
+            setRatings={(newRatings) => {
+              setRatings(newRatings)
+              saveToLocalStorage(part, rankings, newRatings, context)
+            }}
+            onBack={() => { 
+              setError('')
+              const newPart = PARTS.P1
+              setPart(newPart)
+              saveToLocalStorage(newPart, rankings, ratings, context)
+            }}
             onNext={() => {
               if (!validateP2()) { setError('Please rate every statement before continuing.'); return }
-              setError(''); setPart(PARTS.P3)
+              setError('')
+              const newPart = PARTS.P3
+              setPart(newPart)
+              saveToLocalStorage(newPart, rankings, ratings, context)
             }}
             error={error}
           />
@@ -133,11 +179,20 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
         {part === PARTS.P3 && (
           <Part3
             context={context}
-            setContext={setContext}
-            onBack={() => { setError(''); setPart(PARTS.P2) }}
+            setContext={(newContext) => {
+              setContext(newContext)
+              saveToLocalStorage(part, rankings, ratings, newContext)
+            }}
+            onBack={() => { 
+              setError('')
+              const newPart = PARTS.P2
+              setPart(newPart)
+              saveToLocalStorage(newPart, rankings, ratings, context)
+            }}
             onSubmit={() => {
               if (!validateP3()) { setError('Please answer all required questions.'); return }
-              setError(''); handleSubmit()
+              setError('')
+              handleSubmit()
             }}
             submitting={submitting}
             error={error}
@@ -228,12 +283,10 @@ function Part2({ ratings, setRatings, onBack, onNext, error }) {
   const scaleColors = ['', colors.red, '#BB3333', '#888888', '#555555', colors.black]
 
   const setRating = (sectionId, qIndex, val) => {
-    setRatings(prev => {
-      const next = { ...prev }
-      next[sectionId] = [...prev[sectionId]]
-      next[sectionId][qIndex] = val
-      return next
-    })
+    const next = { ...ratings }
+    next[sectionId] = [...ratings[sectionId]]
+    next[sectionId][qIndex] = val
+    setRatings(next)
   }
 
   return (
