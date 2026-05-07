@@ -24,6 +24,4 @@
   [headers.values]
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
-[[functions]]
-name = "generate-report"
-schedule = "*/30 * * * *"
+
