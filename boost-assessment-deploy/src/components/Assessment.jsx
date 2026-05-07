@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { Header, ProgressBar, styles, colors } from '../styles.jsx'
-import { personalityRows, skillSections, contextQuestions } from '../config.js'
+import { Header, ProgressBar, styles, colors } from './styles.jsx'
+import { personalityRows, skillSections, contextQuestions } from './config.js'
 
 const PARTS = { P1: 'personality', P2: 'skills', P3: 'context' }
 
@@ -80,11 +80,10 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
 
   return (
     <div style={styles.page}>
-      {submitting && <LoadingModal />}
       <Header />
       <div style={{ ...styles.cardWide, marginTop: 0 }}>
         <div style={{ marginBottom: 8, fontSize: 14, color: colors.midGray, fontWeight: 600 }}>
-          Welcome, {contact?.fullName?.split(' ')[0]}!
+          Welcome, {contact && contact.fullName ? contact.fullName.split(' ')[0] : 'Friend'}!
         </div>
         <ProgressBar step={partIndex} total={totalParts} label={
           part === PARTS.P1 ? 'Part 1 of 3 — Personality Assessment' :
@@ -119,6 +118,7 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
 
         {part === PARTS.P3 && (
           <Part3
+            contact={contact}
             context={context}
             setContext={setContext}
             onBack={() => { setError(''); setPart(PARTS.P2) }}
@@ -131,96 +131,6 @@ export default function Assessment({ contact, paymentIntent, onSubmit }) {
           />
         )}
       </div>
-    </div>
-  )
-}
-
-function LoadingModal() {
-  return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 9999,
-    }}>
-      <div style={{
-        background: colors.white,
-        borderRadius: 12,
-        padding: 48,
-        textAlign: 'center',
-        maxWidth: 400,
-        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-      }}>
-        <Spinner />
-        <h2 style={{
-          fontSize: 24,
-          fontWeight: 700,
-          color: colors.black,
-          margin: '24px 0 12px',
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-        }}>
-          Generating Your Report
-        </h2>
-        <p style={{
-          fontSize: 15,
-          color: colors.darkGray,
-          margin: '0 0 8px',
-          lineHeight: 1.5,
-        }}>
-          We're analyzing your responses and creating your personalized BOOST Blueprint Report.
-        </p>
-        <p style={{
-          fontSize: 13,
-          color: colors.midGray,
-          margin: 0,
-          fontStyle: 'italic',
-        }}>
-          This typically takes 10–15 seconds...
-        </p>
-      </div>
-    </div>
-  )
-}
-
-function Spinner() {
-  return (
-    <div style={{
-      width: 48,
-      height: 48,
-      margin: '0 auto',
-      position: 'relative',
-    }}>
-      <svg
-        viewBox="0 0 50 50"
-        style={{
-          animation: 'spin 1s linear infinite',
-          width: '100%',
-          height: '100%',
-        }}
-      >
-        <circle
-          cx="25"
-          cy="25"
-          r="20"
-          fill="none"
-          stroke={colors.red}
-          strokeWidth="3"
-          strokeDasharray="31.4 62.8"
-          strokeLinecap="round"
-        />
-      </svg>
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   )
 }
@@ -389,7 +299,7 @@ function Part2({ ratings, setRatings, onBack, onNext, error }) {
   )
 }
 
-function Part3({ context, setContext, onBack, onSubmit, submitting, error }) {
+function Part3({ contact, context, setContext, onBack, onSubmit, submitting, error }) {
   const setField = (id, val) => setContext(prev => ({ ...prev, [id]: val }))
 
   return (
