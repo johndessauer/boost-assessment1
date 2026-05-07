@@ -74,7 +74,7 @@ async function callClaudeWithRetry(prompt, maxAttempts = 3) {
         },
         body: JSON.stringify({ 
           model: 'claude-opus-4-20250514', 
-          max_tokens: 4000,
+          max_tokens: 3000,
           messages: [{ role: 'user', content: prompt }] 
         }),
       })
