@@ -1,4 +1,4 @@
-onst profileLabels = {
+const profileLabels = {
   A: { name: 'Purple', style: 'Warm / Relational' },
   B: { name: 'Gold',   style: 'Analytical / Deliberate' },
   C: { name: 'Blue',   style: 'Visionary / Creative' },
