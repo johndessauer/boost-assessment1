@@ -1,4 +1,4 @@
-const profileLabels = {
+onst profileLabels = {
   A: { name: 'Purple', style: 'Warm / Relational' },
   B: { name: 'Gold',   style: 'Analytical / Deliberate' },
   C: { name: 'Blue',   style: 'Visionary / Creative' },
@@ -11,12 +11,14 @@ const skillSections = [
   { id: 'secure',      pillar: 'Secure',      pillarLetter: 'S' },
   { id: 'track',       pillar: 'Track',       pillarLetter: 'T' },
 ]
+
 function calculatePersonalityProfile(rankings) {
   const totals = { A: 0, B: 0, C: 0, D: 0 }
   rankings.forEach(row => { totals.A += Number(row.A); totals.B += Number(row.B); totals.C += Number(row.C); totals.D += Number(row.D) })
   const sorted = Object.entries(totals).sort((a, b) => a[1] - b[1])
   return { totals, primary: sorted[0][0], secondary: sorted[1][0], primaryProfile: profileLabels[sorted[0][0]], secondaryProfile: profileLabels[sorted[1][0]] }
 }
+
 function calculateBoostScores(ratings) {
   const scores = {}
   skillSections.forEach(section => {
@@ -27,6 +29,7 @@ function calculateBoostScores(ratings) {
   })
   return scores
 }
+
 function getProgramRecommendation(boostScores, context) {
   let effectiveRole = context.role
   if (context.role === 'Entrepreneur') {
@@ -47,73 +50,19 @@ function getProgramRecommendation(boostScores, context) {
   if (gaps >= 2 || developing >= 3) return '10-Pack Consulting'
   return '1-Hour Consulting'
 }
-function profileColor(key) {
-  return key === 'A' ? '#6B3FA0' : key === 'B' ? '#C8922A' : key === 'C' ? '#1A6FB5' : '#C0392B'
-}
-function cleanReportHtml(text) {
-  return text.split('\n').map(l => {
-    l = l.replace(/^#{1,3}\s+/, '')
-    l = l.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    if (l.trim() === '---' || l.trim() === '***') return ''
-    if (l.startsWith('SECTION')) return '<h3 style="color:#E4181B;margin:24px 0 10px;font-weight:800;font-size:16px">' + l + '</h3>'
-    if (!l.trim()) return '<br>'
-    return '<p style="margin:0 0 10px;line-height:1.7">' + l + '</p>'
-  }).join('')
-}
-
-// Retry helper with exponential backoff
-async function callClaudeWithRetry(prompt, maxAttempts = 3) {
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json', 
-          'x-api-key': process.env.ANTHROPIC_API_KEY, 
-          'anthropic-version': '2023-06-01' 
-        },
-        body: JSON.stringify({ 
-          model: 'claude-opus-4-20250514', 
-          max_tokens: 2500,
-          messages: [{ role: 'user', content: prompt }] 
-        }),
-      })
-      
-      const result = await response.json()
-      
-      // Check for 529 overload error
-      if (response.status === 529 || (result.error && result.error.type === 'overloaded_error')) {
-        console.log(`Attempt ${attempt}/${maxAttempts}: Claude API overloaded. Retrying in ${Math.pow(2, attempt)}s...`)
-        if (attempt < maxAttempts) {
-          await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000))
-          continue
-        }
-        throw new Error('Claude API overloaded after ' + maxAttempts + ' attempts')
-      }
-      
-      // Check for other errors
-      if (!response.ok) {
-        throw new Error('Claude API error: ' + response.status + ' ' + JSON.stringify(result))
-      }
-      
-      return result
-    } catch (err) {
-      console.error(`Attempt ${attempt}/${maxAttempts} failed:`, err.message)
-      if (attempt === maxAttempts) throw err
-      await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000))
-    }
-  }
-}
 
 export default async (req) => {
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 })
+  
   let body
   try { body = await req.json() } catch (e) {
     return new Response(JSON.stringify({ ok: false, error: 'Invalid request' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
   }
+
   const { contact, paymentIntent, rankings, ratings, context } = body
   console.log('Assessment received for:', contact?.email)
 
+  // Verify payment
   const stripeKey = process.env.STRIPE_SECRET_KEY
   if (stripeKey && paymentIntent) {
     try {
@@ -127,182 +76,44 @@ export default async (req) => {
     } catch (err) { console.error('Payment error:', err.message) }
   }
 
+  // Calculate basic profile (for immediate display and status)
   const personality = calculatePersonalityProfile(rankings)
   const boostScores = calculateBoostScores(ratings)
   const program = getProgramRecommendation(boostScores, context)
   const scoreEntries = Object.values(boostScores)
   const primaryGap = scoreEntries.reduce((a, b) => a.score < b.score ? a : b)
   const topStrength = scoreEntries.reduce((a, b) => a.score > b.score ? a : b)
-  const primaryColor = profileColor(personality.primary)
-  const secondaryColor = profileColor(personality.secondary)
-  console.log('Profile:', personality.primaryProfile.name, '| Gap:', primaryGap.pillar, '| Program:', program)
 
-  let reportText = ''
+  // Create unique job ID
+  const jobId = `report_${Date.now()}_${Math.random().toString(36).substring(7)}`
+
+  // Save to Netlify KV
   try {
-    const scores = Object.values(boostScores).map(s => s.pillar + ': ' + s.score + ' (' + s.status + ')').join(', ')
+    const kv = await import('@netlify/blobs').then(m => m.kv)
+    const jobData = {
+      jobId,
+      contact,
+      rankings,
+      ratings,
+      context,
+      personality: { ...personality, profileLabels: undefined }, // Remove unnecessary data
+      boostScores,
+      program,
+      primaryGap: { pillar: primaryGap.pillar, score: primaryGap.score },
+      topStrength: { pillar: topStrength.pillar, score: topStrength.score },
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      reportText: null,
+      emailSent: false
+    }
     
-    // Determine effective role for report personalization
-    let effectiveRole = context.role
-    if (context.role === 'Entrepreneur') {
-      if (context.business_structure === 'No, just me') {
-        effectiveRole = 'Individual Sales Rep'
-      } else {
-        effectiveRole = 'Business Owner'
-      }
-    }
-
-    const prompt = `You are creating a personalized BOOST Blueprint Sales Assessment Report for ${contact.fullName}.
-
-RESPONDENT DATA:
-${contact.fullName} | ${effectiveRole} | ${context.industry || 'Sales'} | ${context.experience || 'unspecified'} experience
-Primary: ${personality.primaryProfile.name} (${personality.primaryProfile.style})
-Secondary: ${personality.secondaryProfile.name}
-BOOST Scores: Build Trust ${boostScores.build_trust.score} | Observe ${boostScores.observe.score} | Offer ${boostScores.offer.score} | Secure ${boostScores.secure.score} | Track ${boostScores.track.score}
-Gap: ${primaryGap.pillar} (${primaryGap.score}) | Strength: ${topStrength.pillar} (${topStrength.score}) | Program: ${program}
-
----
-
-INSTRUCTIONS: Write 13 sections. NO markdown. Each section heading: "SECTION X --". Be direct and concise—focus on actionable insights and specific research. Keep all stats, research citations, and result-oriented language (e.g., "When you master X, you'll increase revenue by Y"). Omit wordiness but maintain value.
-
-SECTION 1 -- YOUR COLOR PROFILE: THE ${personality.primaryProfile.name.toUpperCase()} PERSONALITY
-As a ${personality.primaryProfile.name}, you bring [specific strengths] to sales. Your secondary ${personality.secondaryProfile.name} adds [modifier]. Ground in personality-sales research. 2 paragraphs.
-
-SECTION 2 -- UNDERSTANDING THE OTHER THREE COLORS
-Quick reference guide for the three colors not your primary. For each: How they decide, what they value, what stresses them, how they buy. Practical and memorable. 2 paragraphs.
-
-SECTION 3 -- WHAT YOUR SCORES MEAN
-Strength = 80+ (consistent mastery). Developing = 60–79 (building, inconsistent). Gap = below 60 (needs focus). All are normal and fixable. Gaps reflect habits, not talent (neuroscience). Sales is learnable. 1 paragraph.
-
-SECTION 4 -- YOUR BOOST SCORE DASHBOARD
-Analyze each pillar: Build Trust ${boostScores.build_trust.score} (${boostScores.build_trust.status}), Observe ${boostScores.observe.score} (${boostScores.observe.status}), Offer ${boostScores.offer.score} (${boostScores.offer.status}), Secure ${boostScores.secure.score} (${boostScores.secure.status}), Track ${boostScores.track.score} (${boostScores.track.status}). For each: score, status, why it matters (oxytocin, discovery, tailoring, closing, metrics). Cite BOOST research. 2 paragraphs.
-
-SECTION 5 -- YOUR WIRING MEETS YOUR GAP: ${personality.primaryProfile.name.toUpperCase()} + ${primaryGap.pillar.toUpperCase()}
-${personality.primaryProfile.name} personalities typically struggle with ${primaryGap.pillar} because [specific reasoning]. Your strength in [area] can become weakness when [scenario]. This is common for your type. Validating and actionable. 1 paragraph.
-
-SECTION 6 -- YOUR BOOST BLUEPRINT: SELLING AS A ${personality.primaryProfile.name.toUpperCase()}
-Principles for each pillar as a ${personality.primaryProfile.name}: Build Trust, Observe, Offer, Secure, Track. For each: [principle + why it works for your color]. End each: "When you master this, you'll [specific result]." 2 paragraphs.
-
-SECTION 7 -- READING THE OTHER THREE COLORS (YOUR COMPETITIVE EDGE)
-For each color (not yours): (1) First signal to read them in 60 seconds, (2) What they want, (3) Your adaptive move as a ${personality.primaryProfile.name}. Practical toolkit. 1 paragraph.
-
-SECTION 8 -- THE SCIENCE: WHY BOOST WORKS
-Research: 95% of decisions subconscious (Zaltman, Harvard). Trust increases competence by 50% (PLOS ONE). Science-based selling = 35% higher close rates (HBR 2024). 57% miss quota; training closes gap (Salesforce 2024). Oxytocin (trust), dopamine (reward), cortisol (urgency). BOOST is research-backed. 1 paragraph.
-
-SECTION 9 -- YOUR THREE BEHAVIORAL SHIFTS
-Three actionable shifts to implement immediately (tied to your personality and ${primaryGap.pillar} gap):
-1. [Shift + Why it matters + Expected result]
-2. [Shift + Why it matters + Expected result]
-3. [Shift + Why it matters + Expected result]
-When you execute these, you'll [results]. 2 paragraphs.
-
-SECTION 10 -- WHY COACHING MULTIPLIES YOUR RESULTS
-Training alone = 1-in-5 behavior change. Training + coaching = 4x greater change (HBR 2024). Why: habits hard alone, need real-time feedback, need assumption-challenging. Coaching converts knowledge into revenue. 1 paragraph.
-
-SECTION 11 -- YOUR RECOMMENDED PROGRAM
-You need ${program} because: [specific gaps], [your role], [team size]. This program is designed for your exact situation. 1 paragraph.
-
-SECTION 12 -- 90-DAY SUCCESS VISION
-When you close your ${primaryGap.pillar} gap and build BOOST mastery: Higher close rates. Stronger relationships. More referrals. Clearer positioning. Greater confidence. Specific to your personality and gap. Aspirational but credible. 1 paragraph.
-
-SECTION 13 -- NEXT STEP: BOOK YOUR STRATEGY CALL
-Book at www.realwiseacademy.com. 30-minute complimentary call with John Dessauer. Discuss your results, clarify your program, map your 90 days. Specific to your color, gaps, situation. Close: "Your potential is not a mystery—it's a science. Let's unlock it."
-
----
-
-TONE: Direct, data-driven, specific, result-oriented. Affirm strengths, be honest about gaps. No filler. Every stat and shift should have measurable outcomes.
-
-Write all 13 sections now. Start with SECTION 1.`
-
-    const result = await callClaudeWithRetry(prompt)
-    console.log('Claude response type:', result.type, '| stop reason:', result.stop_reason)
-    reportText = (result.content && result.content[0]) ? result.content[0].text : ''
-    if (!reportText) {
-      console.error('No report text in response:', JSON.stringify(result).substring(0, 300))
-      throw new Error('Claude returned empty response')
-    }
-    console.log('Report generated successfully, length:', reportText.length, 'chars')
+    await kv.set(jobId, JSON.stringify(jobData), { metadata: { status: 'pending', email: contact.email } })
+    console.log('Job saved to KV:', jobId)
   } catch (err) {
-    console.error('CRITICAL - Report generation error:', err.message)
-    reportText = 'BOOST Blueprint Report for ' + contact.fullName + '\n\nProfile: ' + personality.primaryProfile.name + ' | Gap: ' + primaryGap.pillar + ' | Program: ' + program + '\n\nBook your strategy call: https://realwiseacademy.com'
+    console.error('KV save error:', err.message)
+    return new Response(JSON.stringify({ ok: false, error: 'Could not save submission' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }
 
-  const scoreRows = Object.values(boostScores).map(s =>
-    '<tr><td style="padding:8px 12px;border-bottom:1px solid #eee;font-weight:600">' + s.pillar + '</td>'
-    + '<td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;font-weight:700;color:' + (s.status==='Strength'?'#1A7A4A':s.status==='Developing'?'#C8922A':'#E4181B') + '">' + s.score + '</td>'
-    + '<td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;color:' + (s.status==='Strength'?'#1A7A4A':s.status==='Developing'?'#C8922A':'#E4181B') + '">' + s.status + '</td></tr>'
-  ).join('')
-
-  const reportHtml = cleanReportHtml(reportText)
-
-  const html = '<!DOCTYPE html><html><head><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"></head><body style="margin:0;padding:0;background:#f8f8f8;font-family:Arial,sans-serif">'
-    + '<div style="max-width:680px;margin:0 auto;background:#fff">'
-    + '<div style="background:#1A1A1A;padding:24px 32px"><h1 style="color:#fff;margin:0">THE BOOST BLUEPRINT</h1><p style="color:#999;margin:4px 0 0;font-size:14px">Sales Assessment Report -- RealWise Academy</p></div>'
-    + '<div style="background:#1A5C38;padding:16px 32px"><h2 style="color:#fff;margin:0">Your Report is Ready, ' + contact.fullName.split(' ')[0] + '!</h2></div>'
-    + '<div style="padding:24px 32px;background:#f8f8f8"><table width="100%" cellpadding="0" cellspacing="6"><tr>'
-    + '<td style="background:' + primaryColor + ';border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">PRIMARY</div><div style="font-size:16px;font-weight:800">' + personality.primaryProfile.name + '</div></td>'
-    + '<td style="width:6px"></td>'
-    + '<td style="background:' + secondaryColor + ';border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">SECONDARY</div><div style="font-size:16px;font-weight:800">' + personality.secondaryProfile.name + '</div></td>'
-    + '<td style="width:6px"></td>'
-    + '<td style="background:#1A7A4A;border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">TOP STRENGTH</div><div style="font-size:14px;font-weight:800">' + topStrength.pillar + ' (' + topStrength.score + ')</div></td>'
-    + '<td style="width:6px"></td>'
-    + '<td style="background:#E4181B;border-radius:8px;padding:10px;text-align:center;color:#fff"><div style="font-size:10px;opacity:.8">PRIMARY GAP</div><div style="font-size:14px;font-weight:800">' + primaryGap.pillar + ' (' + primaryGap.score + ')</div></td>'
-    + '</tr></table></div>'
-    + '<div style="padding:0 32px 24px"><table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:8px;overflow:hidden">'
-    + '<tr style="background:#1A1A1A"><th style="padding:10px 12px;color:#fff;text-align:left">Pillar</th><th style="padding:10px 12px;color:#fff;text-align:center">Score</th><th style="padding:10px 12px;color:#fff;text-align:center">Status</th></tr>'
-    + scoreRows + '</table></div>'
-    + '<div style="padding:0 32px 32px;font-size:15px;color:#1A1A1A">' + reportHtml + '</div>'
-    + '<div style="margin:0 32px 32px;background:#1A1A1A;border-radius:12px;padding:28px 32px;text-align:center">'
-    + '<h3 style="color:#ffffff;margin:0 0 8px">Ready to Build on This?</h3>'
-    + '<p style="color:#cccccc;font-size:14px;margin:0 0 20px">Book a complimentary 30-minute Strategy Call with John Dessauer.</p>'
-    + '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table cellpadding="0" cellspacing="0"><tr><td style="background:#1A5C38;border-radius:8px"><a href="https://realwiseacademy.com/#programs" style="display:inline-block;background:#1A5C38;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-family:Arial,sans-serif">Book Your Strategy Call</a></td></tr></table></td></tr></table>'
-    + '</div>'
-    + '<div style="padding:20px 32px;border-top:1px solid #eee;text-align:center"><p style="font-size:12px;color:#999;margin:0">2026 Dessauer Group II LLC | RealWise Academy</p></div>'
-    + '</div></body></html>'
-
-  const okResponse = new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } })
-
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.RESEND_API_KEY },
-      body: JSON.stringify({ from: 'John Dessauer | RealWise Academy <john@thedessauergroup.com>', to: [contact.email], subject: 'Your BOOST Blueprint Report is Ready, ' + contact.fullName.split(' ')[0] + '!', html }),
-    })
-    const emailResult = await res.json()
-    console.log('Respondent email sent:', emailResult.id || 'success')
-  } catch (err) { console.error('Respondent email error:', err.message) }
-
-  try {
-    const telLink = 'tel:' + contact.phone.replace(/\D/g, '')
-    const ownerHtml = '<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">'
-      + '<div style="background:#1A1A1A;padding:20px;border-radius:8px 8px 0 0"><h2 style="color:#fff;margin:0">New Assessment: ' + contact.fullName + '</h2></div>'
-      + '<div style="background:#E4181B;padding:12px 20px"><h3 style="color:#fff;margin:0">' + personality.primaryProfile.name + '/' + personality.secondaryProfile.name + ' | Gap: ' + primaryGap.pillar + ' (' + primaryGap.score + ')</h3></div>'
-      + '<div style="border:1px solid #eee;border-top:none;padding:20px;border-radius:0 0 8px 8px">'
-      + '<table cellpadding="6" cellspacing="0" width="100%">'
-      + '<tr><td style="font-weight:600;width:130px">Name:</td><td>' + contact.fullName + '</td></tr>'
-      + '<tr><td style="font-weight:600">Email:</td><td><a href="mailto:' + contact.email + '" style="color:#E4181B">' + contact.email + '</a></td></tr>'
-      + '<tr><td style="font-weight:600">Phone:</td><td><a href="' + telLink + '" style="color:#E4181B;font-size:18px;font-weight:700">' + contact.phone + '</a></td></tr>'
-      + '<tr><td style="font-weight:600">Industry:</td><td>' + (context.industry||'N/A') + '</td></tr>'
-      + '<tr><td style="font-weight:600">Role:</td><td>' + (context.role||'N/A') + '</td></tr>'
-      + '<tr><td style="font-weight:600">Gap:</td><td style="color:#E4181B;font-weight:700">' + primaryGap.pillar + ' (' + primaryGap.score + ')</td></tr>'
-      + '<tr><td style="font-weight:600">Program:</td><td><strong>' + program + '</strong></td></tr>'
-      + '</table>'
-      + '<div style="margin-top:20px;text-align:center"><a href="' + telLink + '" style="display:inline-block;background:#1A5C38;color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-size:18px">Call ' + contact.fullName.split(' ')[0] + ' Now</a></div>'
-      + '</div></body></html>'
-
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.RESEND_API_KEY },
-      body: JSON.stringify({ from: 'BOOST Assessment <john@thedessauergroup.com>', to: [process.env.OWNER_EMAIL], subject: 'New Assessment: ' + contact.fullName + ' | ' + personality.primaryProfile.name + ' | Gap: ' + primaryGap.pillar, html: ownerHtml }),
-    })
-    const ownerResult = await res.json()
-    console.log('Owner email sent:', ownerResult.id || 'success')
-  } catch (err) { console.error('Owner email error:', err.message) }
-
-  try {
-    await fetch('https://emailoctopus.com/api/1.6/lists/' + process.env.EMAIL_OCTOPUS_LIST_ID + '/contacts', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ api_key: process.env.EMAIL_OCTOPUS_API_KEY, email_address: contact.email, fields: { FirstName: contact.fullName.split(' ')[0], LastName: contact.fullName.split(' ').slice(1).join(' '), Phone: contact.phone }, tags: ['boost-assessment-completed', 'profile-' + personality.primaryProfile.name.toLowerCase(), 'gap-' + primaryGap.pillar.toLowerCase().replace(/ /g, '-')], status: 'SUBSCRIBED' }),
-    })
-    console.log('Email Octopus tagged successfully')
-  } catch (err) { console.error('Email Octopus error:', err.message) }
-
-  return okResponse
+  // Return immediately
+  return new Response(JSON.stringify({ ok: true, jobId }), { headers: { 'Content-Type': 'application/json' } })
 }
