@@ -4,7 +4,7 @@ import { personalityRows, skillSections, contextQuestions } from './config.js'
 
 const PARTS = { P1: 'personality', P2: 'skills', P3: 'context' }
 
-export default function Assessment({ contact, paymentIntent, onSubmit }) {
+export default function Assessment({ contact = { fullName: 'Test User', email: 'test@example.com' }, paymentIntent, onSubmit }) {
   const [part, setPart] = useState(PARTS.P1)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
