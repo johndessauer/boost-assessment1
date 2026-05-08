@@ -7,7 +7,7 @@
   node_bundler = "esbuild"
 
 [functions."submit-assessment"]
-  timeout = 26
+  timeout = 90
 
 [[redirects]]
   from = "/api/*"
