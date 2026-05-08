@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { Header, ProgressBar, styles, colors } from './styles.jsx'
-import { personalityRows, skillSections, contextQuestions } from './config.js'
+import { Header, ProgressBar, styles, colors } from '../styles.jsx'
+import { personalityRows, skillSections, contextQuestions } from '../config.js'
 
 const PARTS = { P1: 'personality', P2: 'skills', P3: 'context' }
 
