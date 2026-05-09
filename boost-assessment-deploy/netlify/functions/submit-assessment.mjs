@@ -322,8 +322,8 @@ Total: 400–500 words.`
 
   console.log('Starting 3 parallel Claude calls...')
   const [part1Result, part2aResult, part2bResult] = await Promise.allSettled([
-    callClaude(prompt1, 1200),
-    callClaude(prompt2a, 1200),
+    callClaude(prompt1, 1500),
+    callClaude(prompt2a, 1500),
     callClaude(prompt2b, 1200),
   ])
 
