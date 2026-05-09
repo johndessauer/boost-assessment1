@@ -115,27 +115,6 @@ export const contextQuestions = [
     options: ['Just me', '2–5', '6–20', '21–100', '100+'],
   },
   {
-    id: 'business_structure',
-    question: 'Do you have employees or independent contractors working in sales for you?',
-    type: 'select',
-    options: ['No, just me', 'Yes, I have a small team'],
-    conditional: { field: 'role', value: 'Entrepreneur' },
-  },
-  {
-    id: 'team_challenges',
-    question: 'What are your top sales challenges today? (Select all that apply)',
-    type: 'multi-select',
-    options: [
-      'Talent acquisition and retention',
-      'Economic uncertainty / longer sales cycles / tighter budgets',
-      'Selling in the AI age',
-      'Building a more skilled sales team (objections, lead gen, etc.)',
-      'Tracking and data',
-      'Other',
-    ],
-    conditional: { field: 'showForTeam', value: true },
-  },
-  {
     id: 'challenge',
     question: 'What is your primary sales challenge right now?',
     type: 'select',
@@ -146,6 +125,7 @@ export const contextQuestions = [
       'Closing & handling objections',
       'Tracking & improving performance',
       'Consistency and accountability',
+      'Other',
     ],
   },
   {
@@ -169,8 +149,8 @@ export const contextQuestions = [
   {
     id: 'income',
     question: 'Current annual sales income or revenue?',
-    type: 'select',
-    options: ['Under $50K', '$50K–$100K', '$100K–$250K', '$250K–$500K', '$500K+', 'Prefer not to say'],
+    type: 'text',
+    placeholder: 'e.g. $85,000',
   },
   {
     id: 'target_income',
@@ -219,14 +199,10 @@ export function calculateBoostScores(ratings) {
 }
 
 export function getProgramRecommendation(boostScores, context) {
-  // Determine effective role
+  // Determine effective role — use team_size to distinguish solo Entrepreneurs from team leaders
   let effectiveRole = context.role;
   if (context.role === 'Entrepreneur') {
-    if (context.business_structure === 'No, just me') {
-      effectiveRole = 'Individual Sales Rep';
-    } else if (context.business_structure === 'Yes, I have a small team') {
-      effectiveRole = 'Business Owner';
-    }
+    effectiveRole = (context.team_size === 'Just me') ? 'Individual Sales Rep' : 'Business Owner';
   }
 
   // Team-based programs
