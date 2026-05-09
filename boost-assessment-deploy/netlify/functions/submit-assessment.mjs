@@ -127,8 +127,12 @@ Three behavioral shifts tied to your ${personality.primaryProfile.name} profile 
 
 function buildFallbackPart2b(contact, personality, boostScores, primaryGap, program, effectiveRole, currentIncome, targetIncome) {
   const roiLine = currentIncome && targetIncome
-    ? `You are currently at ${currentIncome} with a target of ${targetIncome}. Closing your ${primaryGap.pillar} gap is the most direct path to that number. The Yearly Consulting program is $14,997 — a fraction of the income gap you are working to close.`
-    : `The Yearly Consulting program is $14,997. Reps who close their primary BOOST gap consistently see 20–40% improvements in close rate — the program pays for itself many times over in year one.`
+    ? `You are currently at ${currentIncome} with a target of ${targetIncome}. Closing your ${primaryGap.pillar} gap is the most direct path to that number. The next step is a complimentary 30-minute strategy call with John Dessauer to confirm fit and map your first 90 days.`
+    : program === '1-Hour Consulting'
+      ? `The 1-Hour Consulting session is $350 — book directly at https://www.calendly.com/johndessauer.`
+      : program === '10-Pack Consulting'
+        ? `The 10-Pack Consulting program is $2,997 — book directly at https://www.calendly.com/johndessauer.`
+        : `The next step is a complimentary 30-minute strategy call with John Dessauer at https://www.calendly.com/johndessauer to confirm fit and map your first 90 days.`
 
   return `SECTION 10 -- WHY COACHING IS THE MULTIPLIER
 Training alone changes behavior in only 1 in 5 reps. Training combined with structured coaching produces 4x greater behavior change (HBR 2024). Real-time feedback and accountability convert knowledge into results in a way that self-study alone never will.
@@ -299,10 +303,15 @@ Total: 400–500 words.`
 
 ${sharedContext}
 
-PROGRAMS: 1-Hour Consulting (few gaps, targeted clarity) | 10-Pack Consulting (2+ gaps, structured development) | Yearly Consulting — $14,997 (flagship, full-year with John Dessauer, experienced reps or persistent gaps) | BOOST Group & Team (Sales Managers, small teams) | BOOST CSO Strategic Overhaul (21+ people).
+PROGRAMS AND CTA LOGIC — follow exactly based on the recommended program (${program}):
+- 1-Hour Consulting ($350): Single focused session with John Dessauer. DIRECT CTA: include the $350 price and direct booking link https://www.calendly.com/johndessauer.
+- 10-Pack Consulting ($2,997): Ten 1-on-1 sessions of systematic coaching. DIRECT CTA: include the $2,997 price and direct booking link https://www.calendly.com/johndessauer.
+- Yearly Consulting ($14,997): Full-year 1-on-1 coaching with John Dessauer. His flagship individual program. HIGH-TOUCH CTA: build the ROI case first, then position the next step as a complimentary 30-minute strategy call at https://www.calendly.com/johndessauer. Do NOT lead with the price as the ask. Frame it as selective — John works with a limited number of clients at a time. The call is to confirm fit and map the first 90 days. No pressure, just clarity.
+- BOOST Group & Team Sales Coaching: For Sales Managers and Business Owners. HIGH-TOUCH CTA: do NOT quote a price. Position the next step as a complimentary strategy call at https://www.calendly.com/johndessauer to scope the engagement for their specific team size and goals.
+- BOOST CSO Strategic Overhaul: For organizations 21+. HIGH-TOUCH CTA: do NOT quote a price. Position the next step as a complimentary executive strategy call at https://www.calendly.com/johndessauer to assess organizational fit and scope the engagement.
 
 ROI GUIDANCE FOR SECTION 11:
-Apply the stat for ${primaryGap.pillar} from the key stats above. If both incomes provided: state the dollar gap (${targetIncome || 'target'} minus ${currentIncome || 'current'}), apply the relevant stat to show what closing the gap is worth in year one, then show $14,997 vs that projected return with clear math. If only current income: project the improvement using the stat. If no income data: use stats only, no fabricated numbers.
+Apply the stat for ${primaryGap.pillar} from the key stats above. If both incomes provided: state the dollar gap (${targetIncome || 'target'} minus ${currentIncome || 'current'}), apply the relevant stat to show what closing the gap is worth in year one, then show the program investment vs that return with clear math. For Yearly, Group & Team, and CSO: build the value case but lead to the strategy call — not the price as the primary ask. If only current income: project the improvement. If no income: use stats only, no fabricated numbers.
 
 ---
 
@@ -310,19 +319,23 @@ SECTION 10 -- WHY COACHING IS THE MULTIPLIER
 Training alone changes behavior in 1 in 5 reps. Training + coaching = 4x behavior change (HBR 2024, LSA Global). Real-time feedback breaks ingrained habits. Explain why this matters specifically for ${contact.fullName}'s ${primaryGap.pillar} gap. Reference John Dessauer's direct coaching approach at RealWise Academy. 2 paragraphs, 4–6 sentences each.
 
 SECTION 11 -- YOUR RECOMMENDED PROGRAM
-Explain why ${program} fits ${contact.fullName} — reference their gap (${primaryGap.pillar} at ${primaryGap.score}), role (${effectiveRole}), and experience. Build the personalized ROI case using the income data and ROI guidance above. Show the math clearly. Financial argument from a trusted advisor, not a sales pitch. 2 paragraphs, 4–6 sentences each.
+Explain why ${program} fits ${contact.fullName} — reference their gap (${primaryGap.pillar} at ${primaryGap.score}), role (${effectiveRole}), and experience. Build the personalized ROI case using the income data and ROI guidance above. Apply the correct CTA logic from the program descriptions above — price and direct booking for 1-Hour and 10-Pack; strategy call framing for Yearly, Group & Team, and CSO. Trusted advisor tone, not a sales pitch. 2 paragraphs, 4–6 sentences each.
 
 SECTION 12 -- WHAT SUCCESS LOOKS LIKE: THE 90-DAY VIEW
 Paint the 90-day picture: stronger close rates, deeper relationships, growing referral pipeline, greater confidence. ${targetIncome ? `Reference their target of ${targetIncome} directly — show the path from where they are to where they want to be.` : 'Make this specific to their personality strengths and gap closing.'} Skills compound — every close funds the next opportunity (John Dessauer). 2 paragraphs, 4–6 sentences each.
 
-SECTION 13 -- YOUR NEXT STEP: BOOK YOUR STRATEGY CALL
-Book at https://www.calendly.com/johndessauer. Describe the 30-minute call: review results, confirm program fit, map first 90 days. Open door, not a pressure close. End the entire report with this exact sentence on its own line: "Your potential is not a mystery. It's a science. And it's waiting for you to unlock it. Let's go." 2 paragraphs, 4–6 sentences each.
+SECTION 13 -- YOUR NEXT STEP
+Apply the correct CTA logic based on ${program}:
+- 1-Hour or 10-Pack: tell them to book directly at https://www.calendly.com/johndessauer, describe what the session covers, make it feel easy and low-friction.
+- Yearly Consulting: invite them to a complimentary 30-minute strategy call at https://www.calendly.com/johndessauer. Describe what happens on the call: review the assessment together, confirm program fit, map the first 90 days. Frame as selective — limited client spots. No pressure, just clarity.
+- Group & Team or CSO: invite them to a complimentary strategy call at https://www.calendly.com/johndessauer to discuss their team's specific situation, scope the engagement, and determine fit. Frame as a conversation, not a commitment.
+End the entire report with this exact sentence on its own line: "Your potential is not a mystery. It's a science. And it's waiting for you to unlock it. Let's go." 2 paragraphs, 4–6 sentences each.
 
 Total: 400–500 words.`
 
   console.log('Starting 3 parallel Claude calls...')
   const [part1Result, part2aResult, part2bResult] = await Promise.allSettled([
-    callClaude(prompt1, 1500),
+    callClaude(prompt1, 1800),
     callClaude(prompt2a, 1500),
     callClaude(prompt2b, 1200),
   ])
