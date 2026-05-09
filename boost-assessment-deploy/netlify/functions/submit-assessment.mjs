@@ -111,7 +111,41 @@ SECTION 5 -- WHERE YOUR WIRING MEETS YOUR GAP: ${personality.primaryProfile.name
 Your ${personality.primaryProfile.name} wiring creates specific natural tendencies in how you approach ${primaryGap.pillar}. Understanding the connection between your color and your gap is the first step to closing it.`
 }
 
-function buildFallbackPart2(contact, personality, boostScores, primaryGap, topStrength, program, effectiveRole, currentIncome, targetIncome) {
+function buildFallbackPart2a(contact, personality, primaryGap) {
+  return `SECTION 6 -- YOUR BOOST BLUEPRINT: SELLING AS A ${personality.primaryProfile.name.toUpperCase()}
+Your ${personality.primaryProfile.name} style gives you natural advantages across every BOOST pillar. The key is deploying those strengths intentionally — and knowing where to compensate when your wiring works against you.
+
+SECTION 7 -- SELLING TO THE OTHER THREE COLORS
+Each color telegraphs itself in the first 60 seconds if you know what to look for. Once you can read the room, you stop selling generically and start selling specifically — that is when deals stop being a grind and start being a conversation.
+
+SECTION 8 -- THE SCIENCE BEHIND BOOST
+BOOST is grounded in neuroscience. Oxytocin drives trust, dopamine drives decisions, cortisol signals urgency. 95% of buying decisions are subconscious (Zaltman, Harvard). Science-based selling produces 35% higher close rates and 20% larger deals (HBR 2024).
+
+SECTION 9 -- YOUR PERSONALIZED PLAYBOOK: THREE BEHAVIORAL SHIFTS
+Three behavioral shifts tied to your ${personality.primaryProfile.name} profile and ${primaryGap.pillar} gap will move your results in the next 90 days. Each shift is specific to your wiring — not generic advice, but changes that make sense for how you naturally operate.`
+}
+
+function buildFallbackPart2b(contact, personality, boostScores, primaryGap, program, effectiveRole, currentIncome, targetIncome) {
+  const roiLine = currentIncome && targetIncome
+    ? `You are currently at ${currentIncome} with a target of ${targetIncome}. Closing your ${primaryGap.pillar} gap is the most direct path to that number. The Yearly Consulting program is $14,997 — a fraction of the income gap you are working to close.`
+    : `The Yearly Consulting program is $14,997. Reps who close their primary BOOST gap consistently see 20–40% improvements in close rate — the program pays for itself many times over in year one.`
+
+  return `SECTION 10 -- WHY COACHING IS THE MULTIPLIER
+Training alone changes behavior in only 1 in 5 reps. Training combined with structured coaching produces 4x greater behavior change (HBR 2024). Real-time feedback and accountability convert knowledge into results in a way that self-study alone never will.
+
+SECTION 11 -- YOUR RECOMMENDED PROGRAM
+${program} is the right fit based on your profile, gap, and role. ${roiLine}
+
+SECTION 12 -- WHAT SUCCESS LOOKS LIKE: THE 90-DAY VIEW
+In 90 days: stronger close rates, deeper client relationships, a growing referral pipeline, and greater confidence in every sales conversation. Skills compound — every close funds the next opportunity, every relationship generates referrals.
+
+SECTION 13 -- YOUR NEXT STEP: BOOK YOUR STRATEGY CALL
+Book at https://www.calendly.com/johndessauer. 30 minutes with John Dessauer. Review your results, confirm program fit, and map your first 90 days.
+
+Your potential is not a mystery. It's a science. And it's waiting for you to unlock it. Let's go.`
+}
+
+
   const roiLine = currentIncome && targetIncome
     ? `You are currently at ${currentIncome} with a target of ${targetIncome}. Closing your ${primaryGap.pillar} gap is the most direct path to that number. The Yearly Consulting program is $14,997 — a fraction of the income gap you are trying to close.`
     : `The Yearly Consulting program is $14,997. Based on the research, reps who close their primary BOOST gap consistently see 20–40% improvements in close rate — which means the program pays for itself many times over in year one.`
@@ -244,16 +278,14 @@ Explain the specific relationship between ${personality.primaryProfile.name} wir
 
 Total target: 550–650 words.`
 
-  // --- PROMPT 2: Sections 6–13 ---
+  // --- SHARED CONTEXT FOR PROMPTS 2A AND 2B ---
   const incomeContext = currentIncome && targetIncome
     ? `- Current Annual Income/Revenue: ${currentIncome}\n- Target Income/Revenue (12 months): ${targetIncome}`
     : currentIncome
       ? `- Current Annual Income/Revenue: ${currentIncome}\n- Target Income/Revenue: Not provided`
       : `- Income: Not provided`
 
-  const prompt2 = `You are generating sections 6–13 of a BOOST Blueprint Sales Assessment Report for ${contact.fullName}. This report is based on the BOOST Sales Success System created by John Dessauer of RealWise Academy. Write in second person, speaking directly to ${contact.fullName}. Professional, direct, warm but data-driven. No markdown. Section headings must be exactly: "SECTION X --"
-
-CRITICAL RULE: ONLY 4 colors exist in the BOOST system: Purple, Gold, Blue, Red. Never reference Green, Orange, or any other color under any circumstances.
+  const sharedContext = `CRITICAL RULE: ONLY 4 colors exist in the BOOST system: Purple, Gold, Blue, Red. Never reference Green, Orange, or any other color.
 
 RESPONDENT DATA:
 - Name: ${contact.fullName} | Role: ${effectiveRole} | Experience: ${context.experience || 'Not specified'}
@@ -264,71 +296,86 @@ RESPONDENT DATA:
 - All BOOST Scores: Build Trust ${boostScores.build_trust.score}, Observe ${boostScores.observe.score}, Offer ${boostScores.offer.score}, Secure ${boostScores.secure.score}, Track ${boostScores.track.score}
 ${incomeContext}
 
+KEY STATS: Build Trust: 5% retention = 25–95% profit increase (Bain). Oxytocin increases perceived competence (PLOS ONE). | Observe: Discovery question quality = single strongest close rate predictor, 35,000+ calls (Rackham). | Offer: Personalization generates 40% more revenue (McKinsey). | Secure: Trial closes improve close rates 40% (Sales Management Journal, 2023). | Track: Data-driven reps grow revenue 20% faster (McKinsey 2024). 57% miss quota (Salesforce 2024).`
+
+  // --- PROMPT 2A: Sections 6–9 ---
+  const prompt2a = `You are generating sections 6–9 of a BOOST Blueprint Sales Assessment Report for ${contact.fullName}. Based on the BOOST Sales Success System by John Dessauer / RealWise Academy. Write in second person. Professional, direct, warm, data-driven. No markdown. Section headings exactly: "SECTION X --"
+
+${sharedContext}
+
 COLOR SELLING REFERENCE:
 - PURPLE seller: lead with relationship, be transparent, show human benefit, follow up with warmth, never rush.
 - GOLD seller: come prepared with data and process, speak in specifics, show track record, honor their timeline.
 - BLUE seller: lead with logic and evidence, let them ask hard questions, give thinking time, praise intelligence.
 - RED seller: get to the point fast, make it exciting, give options, appeal to competition, create urgency.
-- Selling TO PURPLE: be real, build relationship first, don't rush. TO GOLD: be prepared, speak in specifics, do what you say. TO BLUE: match intellect, lead with evidence, give space. TO RED: point fast, exciting, urgent, match energy.
-
-KEY STATS BY PILLAR:
-- Build Trust: 5% retention = 25–95% profit increase (Bain). Oxytocin increases perceived competence (PLOS ONE).
-- Observe: Discovery question quality = single strongest close rate predictor across 35,000+ calls (Rackham). 20% close rate improvement compounds directly into income.
-- Offer: Personalization generates 40% more revenue (McKinsey). Outcomes over features — dopamine fires on anticipation.
-- Secure: Trial closes improve close rates 40% (Sales Management Journal, 2023). Income × 1.40 = projected income after closing this gap.
-- Track: Data-driven reps grow revenue 20% faster (McKinsey 2024). 57% miss quota — measurement discipline is the gap (Salesforce 2024).
-
-PROGRAMS: 1-Hour Consulting (few gaps, targeted clarity) | 10-Pack Consulting (2+ gaps, structured development) | Yearly Consulting — $14,997 (flagship, full-year with John Dessauer, experienced reps or persistent gaps) | BOOST Group & Team (Sales Managers, small teams) | BOOST CSO Strategic Overhaul (21+ people).
-
-ROI GUIDANCE FOR SECTION 11:
-Apply the stat for ${primaryGap.pillar} above. If both incomes provided: state the dollar gap (${targetIncome || 'target'} minus ${currentIncome || 'current'}), apply the relevant stat to show how much closing the gap is worth in year one, then show the $14,997 investment vs that projected return. Be specific with the math. If only current income: project the improvement using the stat. If no income data: use stats only, no fabricated numbers.
+- TO PURPLE: be real, build relationship first, don't rush. TO GOLD: be prepared, speak in specifics. TO BLUE: match intellect, lead with evidence, give space. TO RED: fast, exciting, urgent, match energy.
 
 ---
 
 SECTION 6 -- YOUR BOOST BLUEPRINT: SELLING AS A ${personality.primaryProfile.name.toUpperCase()}
-One specific principle per pillar (Build Trust, Observe, Offer, Secure, Track) tailored to ${personality.primaryProfile.name} wiring. For each, explain why it works for this color. Ground in BOOST system language. 2 paragraphs, 4–6 sentences each.
+One specific principle per pillar (Build Trust, Observe, Offer, Secure, Track) tailored to ${personality.primaryProfile.name} wiring. For each, explain why it works for this color. Ground in BOOST language. 2 paragraphs, 4–6 sentences each.
 
 SECTION 7 -- SELLING TO THE OTHER THREE COLORS
-For each non-primary color (${['Purple','Gold','Blue','Red'].filter(c => c !== personality.primaryProfile.name).join(', ')}): how to read them in 60 seconds, what they need to move toward a decision, and the specific adaptive move a ${personality.primaryProfile.name} needs to make — including what natural tendencies of their own color to watch out for. 2 paragraphs, 4–6 sentences each.
+For each non-primary color (${['Purple','Gold','Blue','Red'].filter(c => c !== personality.primaryProfile.name).join(', ')}): how to read them in 60 seconds, what they need to decide, and the specific adaptive move a ${personality.primaryProfile.name} must make — including what tendencies of their own color to watch out for. 2 paragraphs, 4–6 sentences each.
 
 SECTION 8 -- THE SCIENCE BEHIND BOOST
-Neuroscience foundation: oxytocin drives trust and increases perceived competence (PLOS ONE); dopamine fires on anticipation of reward — outcomes beat features every time; cortisol signals real urgency. 95% of purchasing decisions are subconscious (Zaltman, Harvard). Science-based selling: 35% higher close rates, 20% larger deals (HBR 2024). Make this feel like conviction. 2 paragraphs, 4–6 sentences each.
+Neuroscience: oxytocin drives trust and increases perceived competence (PLOS ONE); dopamine fires on anticipation — outcomes beat features every time; cortisol signals real urgency. 95% of purchasing decisions are subconscious (Zaltman, Harvard). Science-based selling: 35% higher close rates, 20% larger deals (HBR 2024). Make this feel like conviction. 2 paragraphs, 4–6 sentences each.
 
 SECTION 9 -- YOUR PERSONALIZED PLAYBOOK: THREE BEHAVIORAL SHIFTS
-Three specific shifts tied to ${personality.primaryProfile.name} wiring and ${primaryGap.pillar} gap. For each: name the behavior change, explain why it matters for this specific color-gap combination, include a research stat that quantifies the expected result, and describe what changes. Immediately actionable. 2 paragraphs, 4–6 sentences each.
+Three specific shifts tied to ${personality.primaryProfile.name} wiring and ${primaryGap.pillar} gap. For each: name the exact behavior change, explain why it matters for this color-gap combination, include a research stat that quantifies the expected result, describe what changes. Immediately actionable. 2 paragraphs, 4–6 sentences each.
+
+Total: 400–500 words.`
+
+  // --- PROMPT 2B: Sections 10–13 ---
+  const prompt2b = `You are generating sections 10–13 of a BOOST Blueprint Sales Assessment Report for ${contact.fullName}. Based on the BOOST Sales Success System by John Dessauer / RealWise Academy. Write in second person. Professional, direct, warm, data-driven. No markdown. Section headings exactly: "SECTION X --"
+
+${sharedContext}
+
+PROGRAMS: 1-Hour Consulting (few gaps, targeted clarity) | 10-Pack Consulting (2+ gaps, structured development) | Yearly Consulting — $14,997 (flagship, full-year with John Dessauer, experienced reps or persistent gaps) | BOOST Group & Team (Sales Managers, small teams) | BOOST CSO Strategic Overhaul (21+ people).
+
+ROI GUIDANCE FOR SECTION 11:
+Apply the stat for ${primaryGap.pillar} from the key stats above. If both incomes provided: state the dollar gap (${targetIncome || 'target'} minus ${currentIncome || 'current'}), apply the relevant stat to show what closing the gap is worth in year one, then show $14,997 vs that projected return with clear math. If only current income: project the improvement using the stat. If no income data: use stats only, no fabricated numbers.
+
+---
 
 SECTION 10 -- WHY COACHING IS THE MULTIPLIER
-Training alone changes behavior in 1 in 5 reps. Training + coaching = 4x behavior change (HBR 2024, LSA Global). Real-time feedback breaks ingrained habits. Explain why this matters specifically for ${contact.fullName}'s ${primaryGap.pillar} gap. Reference John Dessauer's direct coaching approach. 2 paragraphs, 4–6 sentences each.
+Training alone changes behavior in 1 in 5 reps. Training + coaching = 4x behavior change (HBR 2024, LSA Global). Real-time feedback breaks ingrained habits. Explain why this matters specifically for ${contact.fullName}'s ${primaryGap.pillar} gap. Reference John Dessauer's direct coaching approach at RealWise Academy. 2 paragraphs, 4–6 sentences each.
 
 SECTION 11 -- YOUR RECOMMENDED PROGRAM
-Explain why ${program} fits ${contact.fullName} — reference their gap (${primaryGap.pillar} at ${primaryGap.score}), role (${effectiveRole}), and experience. Then build the personalized ROI case using the income data and ROI guidance above. Show the math clearly and specifically. This is a financial argument from a trusted advisor, not a sales pitch. 2 paragraphs, 4–6 sentences each.
+Explain why ${program} fits ${contact.fullName} — reference their gap (${primaryGap.pillar} at ${primaryGap.score}), role (${effectiveRole}), and experience. Build the personalized ROI case using the income data and ROI guidance above. Show the math clearly. Financial argument from a trusted advisor, not a sales pitch. 2 paragraphs, 4–6 sentences each.
 
 SECTION 12 -- WHAT SUCCESS LOOKS LIKE: THE 90-DAY VIEW
-Paint the 90-day picture: stronger close rates, deeper relationships, growing referral pipeline, greater confidence. ${targetIncome ? `Reference their target of ${targetIncome} directly — show the path from where they are to where they want to be.` : 'Make this specific to their personality strengths and gap closing.'} Skills compound — every close funds the next opportunity, every relationship generates referrals (John Dessauer). 2 paragraphs, 4–6 sentences each.
+Paint the 90-day picture: stronger close rates, deeper relationships, growing referral pipeline, greater confidence. ${targetIncome ? `Reference their target of ${targetIncome} directly — show the path from where they are to where they want to be.` : 'Make this specific to their personality strengths and gap closing.'} Skills compound — every close funds the next opportunity (John Dessauer). 2 paragraphs, 4–6 sentences each.
 
 SECTION 13 -- YOUR NEXT STEP: BOOK YOUR STRATEGY CALL
 Book at https://www.calendly.com/johndessauer. Describe the 30-minute call: review results, confirm program fit, map first 90 days. Open door, not a pressure close. End the entire report with this exact sentence on its own line: "Your potential is not a mystery. It's a science. And it's waiting for you to unlock it. Let's go." 2 paragraphs, 4–6 sentences each.
 
-Total target: 800–950 words.`
+Total: 400–500 words.`
 
-  console.log('Starting parallel Claude calls...')
-  const [part1Result, part2Result] = await Promise.allSettled([
+  console.log('Starting 3 parallel Claude calls...')
+  const [part1Result, part2aResult, part2bResult] = await Promise.allSettled([
     callClaude(prompt1, 1200),
-    callClaude(prompt2, 2400),
+    callClaude(prompt2a, 1200),
+    callClaude(prompt2b, 1200),
   ])
 
   const part1Text = part1Result.status === 'fulfilled' && part1Result.value
     ? part1Result.value
     : buildFallbackPart1(contact, personality, boostScores, primaryGap, topStrength)
 
-  const part2Text = part2Result.status === 'fulfilled' && part2Result.value
-    ? part2Result.value
-    : buildFallbackPart2(contact, personality, boostScores, primaryGap, topStrength, program, effectiveRole, currentIncome, targetIncome)
+  const part2aText = part2aResult.status === 'fulfilled' && part2aResult.value
+    ? part2aResult.value
+    : buildFallbackPart2a(contact, personality, primaryGap)
+
+  const part2bText = part2bResult.status === 'fulfilled' && part2bResult.value
+    ? part2bResult.value
+    : buildFallbackPart2b(contact, personality, boostScores, primaryGap, program, effectiveRole, currentIncome, targetIncome)
 
   if (part1Result.status === 'rejected') console.error('Part 1 failed:', part1Result.reason?.message)
-  if (part2Result.status === 'rejected') console.error('Part 2 failed:', part2Result.reason?.message)
+  if (part2aResult.status === 'rejected') console.error('Part 2A failed:', part2aResult.reason?.message)
+  if (part2bResult.status === 'rejected') console.error('Part 2B failed:', part2bResult.reason?.message)
 
-  const reportText = part1Text + '\n\n' + part2Text
+  const reportText = part1Text + '\n\n' + part2aText + '\n\n' + part2bText
   console.log('Report assembled:', reportText.length, 'chars')
 
   const scoreRows = Object.values(boostScores).map(s =>
