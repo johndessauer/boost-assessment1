@@ -181,8 +181,13 @@ export default async (req) => {
     effectiveRole = (context.team_size === 'Just me') ? 'Individual Sales Rep' : 'Business Owner'
   }
 
-  const currentIncome = context.income && context.income.trim() ? context.income.trim() : null
-  const targetIncome = context.target_income && context.target_income.trim() ? context.target_income.trim() : null
+  function formatIncome(val) {
+    if (!val || !val.trim()) return null
+    const clean = val.trim()
+    return clean.startsWith('$') ? clean : '$' + clean
+  }
+  const currentIncome = formatIncome(context.income)
+  const targetIncome = formatIncome(context.target_income)
 
   console.log('Profile:', personality.primaryProfile.name, '| Gap:', primaryGap.pillar, '| Program:', program)
   if (currentIncome) console.log('Income:', currentIncome, '→', targetIncome || 'no target')
