@@ -145,38 +145,6 @@ Book at https://www.calendly.com/johndessauer. 30 minutes with John Dessauer. Re
 Your potential is not a mystery. It's a science. And it's waiting for you to unlock it. Let's go.`
 }
 
-
-  const roiLine = currentIncome && targetIncome
-    ? `You are currently at ${currentIncome} with a target of ${targetIncome}. Closing your ${primaryGap.pillar} gap is the most direct path to that number. The Yearly Consulting program is $14,997 — a fraction of the income gap you are trying to close.`
-    : `The Yearly Consulting program is $14,997. Based on the research, reps who close their primary BOOST gap consistently see 20–40% improvements in close rate — which means the program pays for itself many times over in year one.`
-
-  return `SECTION 6 -- YOUR BOOST BLUEPRINT: SELLING AS A ${personality.primaryProfile.name.toUpperCase()}
-Your ${personality.primaryProfile.name} style gives you natural advantages across the BOOST system. The key is deploying those strengths intentionally.
-
-SECTION 7 -- SELLING TO THE OTHER THREE COLORS
-Each color telegraphs itself in the first 60 seconds. Once you can read the room, you stop selling generically and start selling specifically.
-
-SECTION 8 -- THE SCIENCE BEHIND BOOST
-BOOST is grounded in neuroscience. Oxytocin drives trust, dopamine drives decisions, cortisol signals urgency. 95% of buying decisions are subconscious (Zaltman, Harvard). Science-based selling produces 35% higher close rates and 20% larger deals (HBR 2024).
-
-SECTION 9 -- YOUR PERSONALIZED PLAYBOOK: THREE BEHAVIORAL SHIFTS
-Three behavioral shifts tied to your ${personality.primaryProfile.name} profile and ${primaryGap.pillar} gap will move your results in the next 90 days.
-
-SECTION 10 -- WHY COACHING IS THE MULTIPLIER
-Training alone changes behavior in only 1 in 5 reps. Training with coaching produces 4x greater behavior change (HBR 2024).
-
-SECTION 11 -- YOUR RECOMMENDED PROGRAM
-${program} is the right fit based on your profile, gap, and role. ${roiLine}
-
-SECTION 12 -- WHAT SUCCESS LOOKS LIKE: THE 90-DAY VIEW
-In 90 days: stronger close rates, deeper client relationships, more referrals, and greater confidence in every sales conversation. Skills compound — every close funds the next opportunity.
-
-SECTION 13 -- YOUR NEXT STEP: BOOK YOUR STRATEGY CALL
-Book at https://www.calendly.com/johndessauer. 30 minutes with John Dessauer. Review your results, confirm program fit, map your first 90 days.
-
-Your potential is not a mystery. It's a science. And it's waiting for you to unlock it. Let's go.`
-}
-
 export default async (req) => {
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 })
 
