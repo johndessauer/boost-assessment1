@@ -138,7 +138,7 @@ SECTION 12 -- WHAT SUCCESS LOOKS LIKE: THE 90-DAY VIEW
 In 90 days: stronger close rates, deeper client relationships, more referrals, and greater confidence in every sales conversation. Skills compound — every close funds the next opportunity.
 
 SECTION 13 -- YOUR NEXT STEP: BOOK YOUR STRATEGY CALL
-Book at https://realwiseacademy.com/#programs. 30 minutes with John Dessauer. Review your results, confirm program fit, map your first 90 days.
+Book at https://www.calendly.com/johndessauer. 30 minutes with John Dessauer. Review your results, confirm program fit, map your first 90 days.
 
 Your potential is not a mystery. It's a science. And it's waiting for you to unlock it. Let's go.`
 }
@@ -307,14 +307,14 @@ SECTION 12 -- WHAT SUCCESS LOOKS LIKE: THE 90-DAY VIEW
 Paint the 90-day picture: stronger close rates, deeper relationships, growing referral pipeline, greater confidence. ${targetIncome ? `Reference their target of ${targetIncome} directly — show the path from where they are to where they want to be.` : 'Make this specific to their personality strengths and gap closing.'} Skills compound — every close funds the next opportunity, every relationship generates referrals (John Dessauer). 2 paragraphs, 4–6 sentences each.
 
 SECTION 13 -- YOUR NEXT STEP: BOOK YOUR STRATEGY CALL
-Book at https://realwiseacademy.com/#programs. Describe the 30-minute call: review results, confirm program fit, map first 90 days. Open door, not a pressure close. End the entire report with this exact sentence on its own line: "Your potential is not a mystery. It's a science. And it's waiting for you to unlock it. Let's go." 2 paragraphs, 4–6 sentences each.
+Book at https://www.calendly.com/johndessauer. Describe the 30-minute call: review results, confirm program fit, map first 90 days. Open door, not a pressure close. End the entire report with this exact sentence on its own line: "Your potential is not a mystery. It's a science. And it's waiting for you to unlock it. Let's go." 2 paragraphs, 4–6 sentences each.
 
 Total target: 800–950 words.`
 
   console.log('Starting parallel Claude calls...')
   const [part1Result, part2Result] = await Promise.allSettled([
     callClaude(prompt1, 1200),
-    callClaude(prompt2, 1800),
+    callClaude(prompt2, 2400),
   ])
 
   const part1Text = part1Result.status === 'fulfilled' && part1Result.value
@@ -359,7 +359,7 @@ Total target: 800–950 words.`
     + '<div style="margin:0 32px 32px;background:#1A1A1A;border-radius:12px;padding:28px 32px;text-align:center">'
     + '<h3 style="color:#ffffff;margin:0 0 8px">Ready to Build on This?</h3>'
     + '<p style="color:#cccccc;font-size:14px;margin:0 0 20px">Book a complimentary 30-minute Strategy Call with John Dessauer.</p>'
-    + '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table cellpadding="0" cellspacing="0"><tr><td style="background:#1A5C38;border-radius:8px"><a href="https://realwiseacademy.com/#programs" style="display:inline-block;background:#1A5C38;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-family:Arial,sans-serif">Book Your Strategy Call</a></td></tr></table></td></tr></table>'
+    + '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table cellpadding="0" cellspacing="0"><tr><td style="background:#1A5C38;border-radius:8px"><a href="https://www.calendly.com/johndessauer" style="display:inline-block;background:#1A5C38;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-family:Arial,sans-serif">Book Your Strategy Call</a></td></tr></table></td></tr></table>'
     + '</div>'
     + '<div style="padding:20px 32px;border-top:1px solid #eee;text-align:center"><p style="font-size:12px;color:#999;margin:0">2026 Dessauer Group II LLC | RealWise Academy</p></div>'
     + '</div></body></html>'
