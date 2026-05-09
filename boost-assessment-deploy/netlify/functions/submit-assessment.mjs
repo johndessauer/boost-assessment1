@@ -64,7 +64,7 @@ function cleanReportHtml(text) {
 
 async function callClaude(prompt, maxTokens = 1200) {
   const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 22000)
+  const timeoutId = setTimeout(() => controller.abort(), 30000)
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -264,47 +264,24 @@ RESPONDENT DATA:
 - All BOOST Scores: Build Trust ${boostScores.build_trust.score}, Observe ${boostScores.observe.score}, Offer ${boostScores.offer.score}, Secure ${boostScores.secure.score}, Track ${boostScores.track.score}
 ${incomeContext}
 
-BOOST FRAMEWORK — SELLING AS AND TO EACH COLOR (Chapter 16):
+COLOR SELLING REFERENCE:
+- PURPLE seller: lead with relationship, be transparent, show human benefit, follow up with warmth, never rush.
+- GOLD seller: come prepared with data and process, speak in specifics, show track record, honor their timeline.
+- BLUE seller: lead with logic and evidence, let them ask hard questions, give thinking time, praise intelligence.
+- RED seller: get to the point fast, make it exciting, give options, appeal to competition, create urgency.
+- Selling TO PURPLE: be real, build relationship first, don't rush. TO GOLD: be prepared, speak in specifics, do what you say. TO BLUE: match intellect, lead with evidence, give space. TO RED: point fast, exciting, urgent, match energy.
 
-SELLING AS PURPLE: Lead with the relationship, not the pitch. Be completely transparent — any hint of manipulation costs you the deal and the relationship. Show how your solution benefits people, not just the bottom line. Follow up with warmth. Do not rush the decision.
+KEY STATS BY PILLAR:
+- Build Trust: 5% retention = 25–95% profit increase (Bain). Oxytocin increases perceived competence (PLOS ONE).
+- Observe: Discovery question quality = single strongest close rate predictor across 35,000+ calls (Rackham). 20% close rate improvement compounds directly into income.
+- Offer: Personalization generates 40% more revenue (McKinsey). Outcomes over features — dopamine fires on anticipation.
+- Secure: Trial closes improve close rates 40% (Sales Management Journal, 2023). Income × 1.40 = projected income after closing this gap.
+- Track: Data-driven reps grow revenue 20% faster (McKinsey 2024). 57% miss quota — measurement discipline is the gap (Salesforce 2024).
 
-SELLING AS GOLD: Come prepared with documentation, data, and a clear process — winging it ends the meeting. Speak in specifics: numbers, timelines, deliverables. Show the track record. Slow and steady wins this race; pressuring them backfires every time.
+PROGRAMS: 1-Hour Consulting (few gaps, targeted clarity) | 10-Pack Consulting (2+ gaps, structured development) | Yearly Consulting — $14,997 (flagship, full-year with John Dessauer, experienced reps or persistent gaps) | BOOST Group & Team (Sales Managers, small teams) | BOOST CSO Strategic Overhaul (21+ people).
 
-SELLING AS BLUE: Know your product better than your prospect. Lead with data, logic, evidence — skip the emotional appeal. Let them ask deep questions; that means they are engaged. Give them time to think — they do not decide out loud. Praise their intelligence, not their personality.
-
-SELLING AS RED: Get to the point fast. Make it exciting — energy is contagious, flatness is fatal. Give them options so they feel like they are choosing. Appeal to their competitive nature. Create genuine urgency.
-
-SELLING TO PURPLE: Be real. Build the relationship first. They are not buying until they trust you. Do not rush them.
-SELLING TO GOLD: Be prepared. Know your product cold. Do what you say every time. Speak in specifics.
-SELLING TO BLUE: Match their intellect. Lead with evidence. Skip small talk. Give them space to think.
-SELLING TO RED: Get to the point. Make it exciting and urgent. Give them freedom to choose. Match their energy.
-
-BOOST PILLAR DYNAMICS:
-- Build Trust: Oxytocin is the foundation. Trust increases perceived competence (PLOS ONE). 5% retention = 25–95% profit increase (Bain).
-- Observe: Rackham (35,000+ calls): discovery question quality is the single strongest close rate predictor. Three levels of need: stated, implicit, unknown. Silence is a sales tool.
-- Offer: Outcomes over features — dopamine fires on anticipation. Challenger Sale: teach before you pitch. Recommend, don't menu.
-- Secure: Five buying signals. Trial closes improve close rates 40% (Sales Management Journal, 2023). Six techniques: Assumptive, Option, Summary, Urgency, Direct, Suggestion. 24-hour follow-up rule.
-- Track: 57% miss quota — measurement discipline is the differentiator (Salesforce 2024). Data-driven teams grow revenue 20% faster (McKinsey 2024). High performers are 4.9x more likely to use CRM actively.
-
-PROGRAM DESCRIPTIONS:
-- 1-Hour Consulting: High-impact single session. For reps with few gaps needing targeted clarity.
-- 10-Pack Consulting: Ten sessions of systematic coaching. For reps with 2+ gaps needing structured development.
-- Yearly Consulting ($14,997): Full-year coaching relationship with John Dessauer. His flagship individual program. For experienced professionals or reps ready to compound results.
-- BOOST Group & Team Sales Coaching: For Sales Managers and Business Owners with small teams.
-- BOOST CSO Strategic Overhaul: For organizations with 21+ people.
-
-ROI CALCULATION GUIDANCE — USE IN SECTION 11:
-Build a personalized ROI case using the respondent's income data and their primary gap. Apply the research stat most relevant to their gap:
-- Build Trust gap → "A 5% increase in client retention produces a 25–95% profit increase (Bain)."
-- Observe gap → "Reps who master discovery question quality — the single strongest predictor of close rate (Rackham, 35,000+ calls) — consistently outperform peers. Improving close rate by 20% directly compounds income."
-- Offer gap → "McKinsey research shows reps who excel at personalized solution presentation generate 40% more revenue."
-- Secure gap → "Reps who master trial close techniques improve close rates by 40% (Sales Management Journal, 2023). Current income × 1.40 = projected income after closing this gap."
-- Track gap → "Data-driven sales professionals grow revenue 20% faster than peers who operate on intuition alone (McKinsey 2024)."
-
-If BOTH current and target income are provided: calculate the dollar gap between them. Apply the relevant research stat to show how closing the ${primaryGap.pillar} gap bridges that gap. Then position the $14,997 Yearly Consulting investment against the projected income increase and show the year-one ROI clearly. Example: "You are currently at $85,000 with a target of $150,000. That is a $65,000 gap. Reps who close their Secure gap improve close rates by 40% — on your current income base, that is an additional $34,000 in year one alone. The Yearly Consulting program is $14,997. That is a projected 2.3x return in year one before compounding."
-
-If only current income is provided: use the relevant stat to project a dollar improvement without fabricating a target.
-If no income data is provided: make the ROI case using research stats only — do not fabricate numbers.
+ROI GUIDANCE FOR SECTION 11:
+Apply the stat for ${primaryGap.pillar} above. If both incomes provided: state the dollar gap (${targetIncome || 'target'} minus ${currentIncome || 'current'}), apply the relevant stat to show how much closing the gap is worth in year one, then show the $14,997 investment vs that projected return. Be specific with the math. If only current income: project the improvement using the stat. If no income data: use stats only, no fabricated numbers.
 
 ---
 
