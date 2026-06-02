@@ -26,10 +26,7 @@ export default async (req) => {
     params.append('metadata[fullName]', contact.fullName)
     params.append('metadata[phone]', contact.phone)
     params.append('metadata[email]', contact.email)
-    params.append('line_items[0][price_data][currency]', 'usd')
-    params.append('line_items[0][price_data][unit_amount]', '9700')
-    params.append('line_items[0][price_data][product_data][name]', 'BOOST Blueprint Sales Assessment')
-    params.append('line_items[0][price_data][product_data][description]', 'Personalized 20+ page sales assessment report delivered to your inbox instantly.')
+    params.append('line_items[0][price]', 'price_1TQ89fD3UPBMwUP0LC3a1YqR')
     params.append('line_items[0][quantity]', '1')
     params.append('allow_promotion_codes', 'true')
     params.append('success_url', `${baseUrl}/?session_id={CHECKOUT_SESSION_ID}`)
@@ -61,4 +58,3 @@ export default async (req) => {
     return new Response(JSON.stringify({ error: 'Payment setup failed. Please try again.' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }
 }
-
