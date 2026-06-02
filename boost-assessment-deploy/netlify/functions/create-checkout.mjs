@@ -8,7 +8,7 @@ export default async (req) => {
     return new Response(JSON.stringify({ error: 'Invalid request body' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
   }
 
-  const { contact, promoCode } = body
+  const { contact } = body
   const stripeKey = process.env.STRIPE_SECRET_KEY
 
   if (!stripeKey) {
@@ -26,22 +26,14 @@ export default async (req) => {
     params.append('metadata[fullName]', contact.fullName)
     params.append('metadata[phone]', contact.phone)
     params.append('metadata[email]', contact.email)
-    params.append('line_items[0][price]', 'price_1TQ89fD3UPBMwUP0LC3a1YqR')
+    params.append('line_items[0][price_data][currency]', 'usd')
+    params.append('line_items[0][price_data][unit_amount]', '9700')
+    params.append('line_items[0][price_data][product_data][name]', 'BOOST Blueprint Sales Assessment')
+    params.append('line_items[0][price_data][product_data][description]', 'Personalized 20+ page sales assessment report delivered to your inbox instantly.')
     params.append('line_items[0][quantity]', '1')
     params.append('allow_promotion_codes', 'true')
     params.append('success_url', `${baseUrl}/?session_id={CHECKOUT_SESSION_ID}`)
     params.append('cancel_url', `${baseUrl}/`)
-
-    if (promoCode && promoCode.trim()) {
-      try {
-        const promoRes = await fetch(`https://api.stripe.com/v1/promotion_codes?code=${encodeURIComponent(promoCode.trim())}&active=true&limit=1`, { headers: { 'Authorization': authHeader } })
-        const promoData = await promoRes.json()
-        if (promoData.data && promoData.data.length > 0) {
-          params.delete('allow_promotion_codes')
-          params.append('discounts[0][promotion_code]', promoData.data[0].id)
-        }
-      } catch {}
-    }
 
     const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
