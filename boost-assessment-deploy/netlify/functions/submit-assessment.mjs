@@ -160,17 +160,24 @@ export default async (req) => {
   const { contact, paymentIntent, rankings, ratings, context } = body
   console.log('Assessment received for:', contact?.email)
 
-  const stripeKey = process.env.STRIPE_SECRET_KEY
-  if (stripeKey && paymentIntent) {
-    try {
-      const authHeader = 'Basic ' + btoa(stripeKey + ':')
-      const res = await fetch('https://api.stripe.com/v1/checkout/sessions/' + paymentIntent, { headers: { 'Authorization': authHeader } })
-      const session = await res.json()
-      console.log('Payment status:', session.payment_status)
-      if (session.payment_status !== 'paid') {
-        return new Response(JSON.stringify({ ok: false, error: 'Payment not verified.' }), { status: 402, headers: { 'Content-Type': 'application/json' } })
-      }
-    } catch (err) { console.error('Payment error:', err.message) }
+  // Bypass code check — skip Stripe verification for complimentary access
+  const bypassCode = process.env.BYPASS_CODE
+  const isBypass = paymentIntent === 'BYPASS' && bypassCode && bypassCode.length > 0
+  console.log('Payment intent:', paymentIntent, '| Bypass:', isBypass)
+
+  if (!isBypass) {
+    const stripeKey = process.env.STRIPE_SECRET_KEY
+    if (stripeKey && paymentIntent) {
+      try {
+        const authHeader = 'Basic ' + btoa(stripeKey + ':')
+        const res = await fetch('https://api.stripe.com/v1/checkout/sessions/' + paymentIntent, { headers: { 'Authorization': authHeader } })
+        const session = await res.json()
+        console.log('Payment status:', session.payment_status)
+        if (session.payment_status !== 'paid') {
+          return new Response(JSON.stringify({ ok: false, error: 'Payment not verified.' }), { status: 402, headers: { 'Content-Type': 'application/json' } })
+        }
+      } catch (err) { console.error('Payment error:', err.message) }
+    }
   }
 
   const personality = calculatePersonalityProfile(rankings)
