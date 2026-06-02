@@ -4,24 +4,28 @@ import { Header, StepIndicator, styles, colors } from '../styles.jsx'
 
 const stripePromise = loadStripe('pk_live_51KGmaCD3UPBMwUPOTfRaCtroBU0OpQeVtMfquZka3G5ndteJ13p8nXDF8opRqOipWAlm8qYL1lhZ6JxbHlHglEmp00D88R9JXo')
 
+const BYPASS_CODE = import.meta.env.VITE_BYPASS_CODE || ''
+
 export default function PaymentGate({ contact, onSuccess }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [promoCode, setPromoCode] = useState('')
-  const [promoApplied, setPromoApplied] = useState(false)
-  const [finalPrice, setFinalPrice] = useState(97)
 
   const handleCheckout = async () => {
     setLoading(true)
     setError('')
+
+    // Bypass code — skip Stripe entirely
+    if (BYPASS_CODE && promoCode.trim().toUpperCase() === BYPASS_CODE.toUpperCase()) {
+      onSuccess('BYPASS')
+      return
+    }
+
     try {
       const res = await fetch('/.netlify/functions/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contact,
-          promoCode: promoCode.trim() || null,
-        }),
+        body: JSON.stringify({ contact }),
       })
       const data = await res.json()
       if (data.error) { setError(data.error); setLoading(false); return }
@@ -78,7 +82,7 @@ export default function PaymentGate({ contact, onSuccess }) {
           </ul>
         </div>
 
-        {/* Promo code */}
+        {/* Promo / bypass code */}
         <div style={{ marginBottom: 20 }}>
           <label style={styles.label}>Promo Code (optional)</label>
           <div style={{ display: 'flex', gap: 10 }}>
