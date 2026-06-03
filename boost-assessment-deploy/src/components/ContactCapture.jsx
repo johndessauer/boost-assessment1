@@ -50,7 +50,7 @@ export default function ContactCapture({ onSubmit }) {
         <StepIndicator current={0} />
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-          <div style={{ width: 4, height: 48, background: colors.red, borderRadius: 2 }} />
+          <div style={{ width: 4, height: 48, background: '#84cc16', borderRadius: 2 }} />
           <div>
             <h1 style={styles.h1}>Find Your Sales Blind Spots</h1>
             <p style={{ fontSize: 15, color: colors.darkGray }}>Your personalized BOOST Blueprint Report starts here.</p>
