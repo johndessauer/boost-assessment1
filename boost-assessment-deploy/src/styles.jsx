@@ -1,5 +1,5 @@
 import React from "react"
-// ─── BRAND COLORS ─────────────────────────────────────────────────────────────
+
 export const colors = {
   red:       '#E4181B',
   green:     '#1A5C38',
@@ -11,7 +11,6 @@ export const colors = {
   white:     '#FFFFFF',
 }
 
-// ─── SHARED STYLES ────────────────────────────────────────────────────────────
 export const styles = {
   page: {
     minHeight: '100vh',
@@ -94,7 +93,7 @@ export const styles = {
   input: {
     width: '100%',
     padding: '12px 16px',
-    border: `1.5px solid ${colors.border}`,
+    border: '1.5px solid #E0E0E0',
     borderRadius: 8,
     fontSize: 15,
     color: colors.black,
@@ -106,7 +105,7 @@ export const styles = {
   select: {
     width: '100%',
     padding: '12px 16px',
-    border: `1.5px solid ${colors.border}`,
+    border: '1.5px solid #E0E0E0',
     borderRadius: 8,
     fontSize: 15,
     color: colors.black,
@@ -138,7 +137,7 @@ export const styles = {
     justifyContent: 'center',
     background: 'transparent',
     color: colors.darkGray,
-    border: `1.5px solid ${colors.border}`,
+    border: '1.5px solid #E0E0E0',
     borderRadius: 8,
     padding: '12px 24px',
     fontSize: 15,
@@ -160,7 +159,7 @@ export const styles = {
     marginBottom: 32,
     child: {
       height: '100%',
-      width: `${pct}%`,
+      width: pct + '%',
       background: colors.red,
       borderRadius: 3,
       transition: 'width 0.4s ease',
@@ -175,7 +174,6 @@ export const styles = {
   },
 }
 
-// ─── HEADER COMPONENT ─────────────────────────────────────────────────────────
 export function Header() {
   return (
     <div style={styles.header}>
@@ -187,7 +185,6 @@ export function Header() {
   )
 }
 
-// ─── PROGRESS BAR ─────────────────────────────────────────────────────────────
 export function ProgressBar({ step, total, label }) {
   const pct = Math.round((step / total) * 100)
   return (
@@ -197,15 +194,36 @@ export function ProgressBar({ step, total, label }) {
         <span style={{ fontSize: 13, color: colors.midGray }}>{pct}% complete</span>
       </div>
       <div style={{ width: '100%', height: 6, background: colors.border, borderRadius: 3, overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: colors.red, borderRadius: 3, transition: 'width 0.4s ease' }} />
+        <div style={{ height: '100%', width: pct + '%', background: colors.red, borderRadius: 3, transition: 'width 0.4s ease' }} />
       </div>
     </div>
   )
 }
 
-// ─── STEP INDICATOR ───────────────────────────────────────────────────────────
 export function StepIndicator({ current }) {
   const steps = ['Contact', 'Payment', 'Assessment', 'Report']
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 32 }}>
-      {steps.map((s, i
+      {steps.map((s, i) => (
+        <React.Fragment key={s}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: '50%',
+              background: i < current ? colors.red : i === current ? colors.red : colors.border,
+              color: i <= current ? colors.white : colors.midGray,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 13, fontWeight: 700,
+              border: i === current ? '2px solid #E4181B' : 'none',
+            }}>
+              {i < current ? '✓' : i + 1}
+            </div>
+            <span style={{ fontSize: 11, color: i <= current ? colors.red : colors.midGray, fontWeight: 600 }}>{s}</span>
+          </div>
+          {i < steps.length - 1 && (
+            <div style={{ flex: 1, height: 2, background: i < current ? colors.red : colors.border, marginBottom: 18, minWidth: 24 }} />
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  )
+}
