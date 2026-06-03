@@ -209,18 +209,18 @@ export function StepIndicator({ current }) {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <div style={{
               width: 32, height: 32, borderRadius: '50%',
-              background: i < current ? colors.red : i === current ? colors.red : colors.border,
+              background: i < current ? '#84cc16' : i === current ? '#84cc16' : colors.border,
               color: i <= current ? colors.white : colors.midGray,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 13, fontWeight: 700,
-              border: i === current ? '2px solid #E4181B' : 'none',
+              border: i === current ? '2px solid #84cc16' : 'none',
             }}>
               {i < current ? '✓' : i + 1}
             </div>
-            <span style={{ fontSize: 11, color: i <= current ? colors.red : colors.midGray, fontWeight: 600 }}>{s}</span>
+            <span style={{ fontSize: 11, color: i <= current ? '#84cc16' : colors.midGray, fontWeight: 600 }}>{s}</span>
           </div>
           {i < steps.length - 1 && (
-            <div style={{ flex: 1, height: 2, background: i < current ? colors.red : colors.border, marginBottom: 18, minWidth: 24 }} />
+            <div style={{ flex: 1, height: 2, background: i < current ? '#84cc16' : colors.border, marginBottom: 18, minWidth: 24 }} />
           )}
         </React.Fragment>
       ))}
