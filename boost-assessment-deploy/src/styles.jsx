@@ -167,8 +167,8 @@ export const styles = {
     }
   }),
   infoBox: {
-    background: '#FFF5F5',
-    border: `1px solid ${colors.red}`,
+    background: '#f0fdf4',
+    border: '1px solid #22c55e',
     borderRadius: 8,
     padding: '16px 20px',
     marginBottom: 24,
@@ -208,26 +208,4 @@ export function StepIndicator({ current }) {
   const steps = ['Contact', 'Payment', 'Assessment', 'Report']
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 32 }}>
-      {steps.map((s, i) => (
-        <React.Fragment key={s}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-            <div style={{
-              width: 32, height: 32, borderRadius: '50%',
-              background: i < current ? colors.red : i === current ? colors.red : colors.border,
-              color: i <= current ? colors.white : colors.midGray,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 13, fontWeight: 700,
-              border: i === current ? `2px solid ${colors.red}` : 'none',
-            }}>
-              {i < current ? '✓' : i + 1}
-            </div>
-            <span style={{ fontSize: 11, color: i <= current ? colors.red : colors.midGray, fontWeight: 600 }}>{s}</span>
-          </div>
-          {i < steps.length - 1 && (
-            <div style={{ flex: 1, height: 2, background: i < current ? colors.red : colors.border, marginBottom: 18, minWidth: 24 }} />
-          )}
-        </React.Fragment>
-      ))}
-    </div>
-  )
-}
+      {steps.map((s, i
