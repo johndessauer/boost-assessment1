@@ -33,10 +33,8 @@ export default async (req) => {
     params.append('cancel_url', `${baseUrl}/`)
 
     if (applyDiscount) {
-      // Apply the BOOST67 Stripe coupon server-side
-      params.append('discounts[0][coupon]', 'B0OST67')
+      params.append('discounts[0][coupon]', 'BOOST67')
     } else {
-      // Allow manual promo codes for organic traffic
       params.append('allow_promotion_codes', 'true')
     }
 
