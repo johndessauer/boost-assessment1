@@ -5,11 +5,39 @@ import { Header, StepIndicator, styles, colors } from '../styles.jsx'
 const stripePromise = loadStripe('pk_live_51KGmaCD3UPBMwUPOTfRaCtroBU0OpQeVtMfquZka3G5ndteJ13p8nXDF8opRqOipWAlm8qYL1lhZ6JxbHlHglEmp00D88R9JXo')
 
 const BYPASS_CODE = import.meta.env.VITE_BYPASS_CODE || ''
+const PROMO_CODE = 'BOOST67'
 
 export default function PaymentGate({ contact, onSuccess }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [promoCode, setPromoCode] = useState('')
+  const [isPromoApplied, setIsPromoApplied] = useState(false)
+
+  // Auto-apply BOOST67 if any UTM param is present in the URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const hasUTM = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].some(p => params.get(p))
+    if (hasUTM) {
+      setPromoCode(PROMO_CODE)
+      setIsPromoApplied(true)
+    }
+  }, [])
+
+  // Check for payment success redirect from Stripe
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const sessionId = params.get('session_id')
+    if (sessionId) {
+      onSuccess(sessionId)
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
+
+  const handlePromoChange = (e) => {
+    const val = e.target.value.toUpperCase()
+    setPromoCode(val)
+    setIsPromoApplied(val === PROMO_CODE)
+  }
 
   const handleCheckout = async () => {
     setLoading(true)
@@ -25,7 +53,7 @@ export default function PaymentGate({ contact, onSuccess }) {
       const res = await fetch('/.netlify/functions/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contact }),
+        body: JSON.stringify({ contact, promoCode: isPromoApplied ? PROMO_CODE : '' }),
       })
       const data = await res.json()
       if (data.error) { setError(data.error); setLoading(false); return }
@@ -39,16 +67,6 @@ export default function PaymentGate({ contact, onSuccess }) {
     }
   }
 
-  // Check for payment success redirect from Stripe
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const sessionId = params.get('session_id')
-    if (sessionId) {
-      onSuccess(sessionId)
-      window.history.replaceState({}, '', window.location.pathname)
-    }
-  }, [])
-
   return (
     <div style={styles.page}>
       <Header />
@@ -56,7 +74,7 @@ export default function PaymentGate({ contact, onSuccess }) {
         <StepIndicator current={1} />
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-          <div style={{ width: 4, height: 48, background: colors.red, borderRadius: 2 }} />
+          <div style={{ width: 4, height: 48, background: '#84cc16', borderRadius: 2 }} />
           <div>
             <h1 style={styles.h1}>Complete Your Purchase</h1>
             <p style={{ fontSize: 15, color: colors.darkGray }}>Welcome, {contact?.fullName?.split(' ')[0]}! One step away from your report.</p>
@@ -67,8 +85,20 @@ export default function PaymentGate({ contact, onSuccess }) {
         <div style={{ background: colors.lightGray, borderRadius: 10, padding: '20px 24px', marginBottom: 24 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <span style={{ fontSize: 15, fontWeight: 600 }}>BOOST Blueprint Sales Assessment</span>
-            <span style={{ fontSize: 18, fontWeight: 800, color: colors.red }}>$97</span>
+            {isPromoApplied ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 15, color: colors.midGray, textDecoration: 'line-through' }}>$97</span>
+                <span style={{ fontSize: 18, fontWeight: 800, color: '#16a34a' }}>$67</span>
+              </div>
+            ) : (
+              <span style={{ fontSize: 18, fontWeight: 800, color: colors.red }}>$97</span>
+            )}
           </div>
+          {isPromoApplied && (
+            <div style={{ fontSize: 13, color: '#16a34a', fontWeight: 600, marginBottom: 8 }}>
+              ✓ Promo code BOOST67 applied — you save $30
+            </div>
+          )}
           <ul style={{ paddingLeft: 20, margin: 0 }}>
             {[
               'Personality profile + secondary color analysis',
@@ -90,8 +120,13 @@ export default function PaymentGate({ contact, onSuccess }) {
               type="text"
               placeholder="Enter promo code"
               value={promoCode}
-              onChange={e => setPromoCode(e.target.value.toUpperCase())}
-              style={{ ...styles.input, marginBottom: 0, flex: 1 }}
+              onChange={handlePromoChange}
+              style={{
+                ...styles.input,
+                marginBottom: 0,
+                flex: 1,
+                borderColor: isPromoApplied ? '#16a34a' : colors.border,
+              }}
             />
           </div>
         </div>
@@ -105,7 +140,7 @@ export default function PaymentGate({ contact, onSuccess }) {
         <div style={styles.divider} />
 
         <button onClick={handleCheckout} style={styles.btnPrimary} disabled={loading}>
-          {loading ? 'Redirecting to secure checkout...' : '🔒  Pay $97 & Start Assessment'}
+          {loading ? 'Redirecting to secure checkout...' : `🔒  Pay ${isPromoApplied ? '$67' : '$97'} & Start Assessment`}
         </button>
 
         <p style={{ textAlign: 'center', fontSize: 12, color: colors.midGray, marginTop: 16 }}>
