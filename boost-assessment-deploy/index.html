@@ -10,9 +10,24 @@
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
       body { font-family: 'Inter', sans-serif; background: #f8f8f8; color: #1A1A1A; }
     </style>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
-</html>
+
+    <!-- Google tag (gtag.js) — GA4 G-2E66EJTRGL -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2E66EJTRGL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-2E66EJTRGL', {
+        linker: {
+          domains: ['realwiseacademy.com', 'boost-assessment.netlify.app']
+        }
+      });
+    </script>
+
+    <!-- Meta Pixel — ID 1368343975242217 -->
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];
