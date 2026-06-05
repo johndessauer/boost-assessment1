@@ -10,8 +10,8 @@ const PROMO_CODE = 'BOOST67'
 export default function PaymentGate({ contact, onSuccess }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [promoCode, setPromoCode] = useState('')
-  const [isPromoApplied, setIsPromoApplied] = useState(false)
+  const [promoCode, setPromoCode] = useState('BOOST67')
+  const [isPromoApplied, setIsPromoApplied] = useState(true)
 
   // Auto-apply BOOST67 if any UTM param is present in the URL
   useEffect(() => {
@@ -43,7 +43,6 @@ export default function PaymentGate({ contact, onSuccess }) {
     setLoading(true)
     setError('')
 
-    // Bypass code — skip Stripe entirely
     if (BYPASS_CODE && promoCode.trim().toUpperCase() === BYPASS_CODE.toUpperCase()) {
       onSuccess('BYPASS')
       return
@@ -81,7 +80,6 @@ export default function PaymentGate({ contact, onSuccess }) {
           </div>
         </div>
 
-        {/* Order summary */}
         <div style={{ background: colors.lightGray, borderRadius: 10, padding: '20px 24px', marginBottom: 24 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <span style={{ fontSize: 15, fontWeight: 600 }}>BOOST Blueprint Sales Assessment</span>
@@ -112,7 +110,6 @@ export default function PaymentGate({ contact, onSuccess }) {
           </ul>
         </div>
 
-        {/* Promo / bypass code */}
         <div style={{ marginBottom: 20 }}>
           <label style={styles.label}>Promo Code (optional)</label>
           <div style={{ display: 'flex', gap: 10 }}>
