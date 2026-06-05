@@ -58,7 +58,7 @@ export default function ContactCapture({ onSubmit }) {
         </div>
 
         <p style={{ fontSize: 14, color: '#16a34a', fontWeight: 600, marginBottom: 20, marginLeft: 16 }}>
-          $67 today with code BOOST67 (reg. $97) — takes less than 10 minutes
+          $67 today with code BOOST67 (reg. $97) — offer expires June 17 · less than 10 minutes
         </p>
 
         <div style={styles.infoBox}>
@@ -72,6 +72,10 @@ export default function ContactCapture({ onSubmit }) {
           {field('email', 'Email Address', 'email', 'your@email.com')}
 
           <div style={styles.divider} />
+
+          <p style={{ textAlign: 'center', fontSize: 14, color: '#dc2626', fontWeight: 700, marginBottom: 12 }}>
+            ⚡ Limited time: 33% off expires June 17
+          </p>
 
           <button type="submit" style={styles.btnPrimary} disabled={loading}>
             {loading ? 'Please wait...' : 'Continue to Payment  →'}
