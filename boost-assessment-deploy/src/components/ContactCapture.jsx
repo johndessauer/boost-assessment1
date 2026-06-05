@@ -48,8 +48,6 @@ export default function ContactCapture({ onSubmit }) {
       <Header />
       <div style={styles.card}>
         <StepIndicator current={0} />
-
-        {/* Headline */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
           <div style={{ width: 4, height: 48, background: '#84cc16', borderRadius: 2 }} />
           <div>
@@ -57,55 +55,49 @@ export default function ContactCapture({ onSubmit }) {
             <p style={{ fontSize: 15, color: colors.darkGray }}>Your personalized BOOST Blueprint Report starts here.</p>
           </div>
         </div>
-
-        {/* FIX 1 — Authority Bar */}
         <p style={{ fontSize: 13, color: colors.darkGray, marginBottom: 16, marginLeft: 16, lineHeight: 1.5 }}>
           Built by <strong>John Dessauer</strong> — Sales strategist, author, and trainer to 1,200+ professionals across medical, automotive, real estate, software, and corporate sales.
         </p>
-
-        {/* Pricing line */}
         <p style={{ fontSize: 14, color: '#16a34a', fontWeight: 600, marginBottom: 20, marginLeft: 16 }}>
           $67 today with code BOOST67 (reg. $97) — offer expires June 17 · less than 10 minutes
         </p>
-
-        {/* FIX 2 — Value Box */}
         <div style={styles.infoBox}>
           <p style={{ fontSize: 14, color: colors.black, fontWeight: 700, marginBottom: 10 }}>What you'll receive:</p>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {[
-              '✅ Your color personality profile + secondary style analysis',
-              '✅ BOOST skill scores across all 5 sales pillars',
-              '✅ Personalized diagnosis — where your wiring meets your skill gap',
-              '✅ A custom BOOST Playbook with your specific action steps',
-              '✅ A program recommendation tailored to your exact profile',
-              '✅ Delivered to your inbox within minutes of completing the assessment',
-            ].map(item => (
-              <li key={item} style={{ fontSize: 14, color: colors.black, lineHeight: 1.6, marginBottom: 4 }}>{item}</li>
-            ))}
+            <li style={{ fontSize: 14, color: colors.black, lineHeight: 1.6, marginBottom: 4 }}>✅ Your color personality profile + secondary style analysis</li>
+            <li style={{ fontSize: 14, color: colors.black, lineHeight: 1.6, marginBottom: 4 }}>✅ BOOST skill scores across all 5 sales pillars</li>
+            <li style={{ fontSize: 14, color: colors.black, lineHeight: 1.6, marginBottom: 4 }}>✅ Personalized diagnosis — where your wiring meets your skill gap</li>
+            <li style={{ fontSize: 14, color: colors.black, lineHeight: 1.6, marginBottom: 4 }}>✅ A custom BOOST Playbook with your specific action steps</li>
+            <li style={{ fontSize: 14, color: colors.black, lineHeight: 1.6, marginBottom: 4 }}>✅ A program recommendation tailored to your exact profile</li>
+            <li style={{ fontSize: 14, color: colors.black, lineHeight: 1.6, marginBottom: 4 }}>✅ Delivered to your inbox within minutes of completing the assessment</li>
           </ul>
         </div>
-
         <form onSubmit={handleSubmit} noValidate>
           {field('fullName', 'Full Name', 'text', 'Your full name')}
           {field('email', 'Email Address', 'email', 'your@email.com')}
-
           <div style={styles.divider} />
-
-          {/* Urgency line */}
           <p style={{ textAlign: 'center', fontSize: 14, color: '#dc2626', fontWeight: 700, marginBottom: 16 }}>
             ⚡ Limited time: 33% off expires June 17
           </p>
-
-          {/* FIX 4 — Social Proof Block */}
           <div style={{ background: '#f8f8f8', border: '1px solid #e5e7eb', borderRadius: 10, padding: '16px 20px', marginBottom: 20 }}>
             <p style={{ fontSize: 13, fontWeight: 700, color: colors.black, marginBottom: 10 }}>Results sales professionals experience:</p>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {[
-                '💡 "Identified gaps I didn\'t know I had — after 14 years in sales."',
-                '🎯 "Showed me exactly why I was stalling at the close."',
-                '📈 "More useful than a full day of training."',
-              ].map(item => (
-                <li key={item} style={{ fontSize: 13, color: colors.darkGray, lineHeight: 1.6, marginBottom: 6 }}>{item}</li>
-              ))}
+              <li style={{ fontSize: 13, color: colors.darkGray, lineHeight: 1.6, marginBottom: 6 }}>💡 "Identified gaps I didn't know I had — after 14 years in sales."</li>
+              <li style={{ fontSize: 13, color: colors.darkGray, lineHeight: 1.6, marginBottom: 6 }}>🎯 "Showed me exactly why I was stalling at the close."</li>
+              <li style={{ fontSize: 13, color: colors.darkGray, lineHeight: 1.6, marginBottom: 6 }}>📈 "More useful than a full day of training."</li>
             </ul>
-            <p style={{ fontSize: 12, color: colors.midGray, marginTop: 10, marginBot
+            <p style={{ fontSize: 12, color: colors.midGray, marginTop: 10, marginBottom: 0 }}>
+              Based on feedback from sales professionals across medical, automotive, real estate, software, and corporate industries.
+            </p>
+          </div>
+          <button type="submit" style={styles.btnPrimary} disabled={loading}>
+            {loading ? 'Please wait...' : 'Find My Sales Blind Spots →'}
+          </button>
+          <p style={{ textAlign: 'center', fontSize: 12, color: colors.midGray, marginTop: 16 }}>
+            🔒 Your information is private and secure. We will never share or sell your data.
+          </p>
+        </form>
+      </div>
+    </div>
+  )
+}
