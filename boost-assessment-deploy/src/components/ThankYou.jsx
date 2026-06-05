@@ -1,12 +1,21 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Header, styles, colors } from '../styles.jsx'
 
 export default function ThankYou({ contact }) {
+
+  useEffect(() => {
+    if (typeof fbq === 'function') {
+      fbq('track', 'Purchase', {
+        value: 67.00,
+        currency: 'USD'
+      })
+    }
+  }, [])
+
   return (
     <div style={styles.page}>
       <Header />
       <div style={styles.card}>
-        {/* Success icon */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{
             width: 80, height: 80, borderRadius: '50%', background: '#E8F5E9',
@@ -35,7 +44,7 @@ export default function ThankYou({ contact }) {
           </p>
         </div>
 
-        <a
+        
           href="https://realwiseacademy.com/#programs"
           target="_blank"
           rel="noopener noreferrer"
