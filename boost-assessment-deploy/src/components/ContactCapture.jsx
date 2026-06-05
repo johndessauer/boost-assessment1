@@ -72,6 +72,17 @@ export default function ContactCapture({ onSubmit }) {
             <li style={{ fontSize: 14, color: colors.black, lineHeight: 1.6, marginBottom: 4 }}>✅ Delivered to your inbox within minutes of completing the assessment</li>
           </ul>
         </div>
+        <div style={{ background: '#f8f8f8', border: '1px solid #e5e7eb', borderRadius: 10, padding: '16px 20px', marginBottom: 20 }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: colors.black, marginBottom: 10 }}>Results sales professionals experience:</p>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            <li style={{ fontSize: 13, color: colors.darkGray, lineHeight: 1.6, marginBottom: 6 }}>💡 <em>"Identified gaps I didn't know I had — after 14 years in sales."</em></li>
+            <li style={{ fontSize: 13, color: colors.darkGray, lineHeight: 1.6, marginBottom: 6 }}>🎯 <em>"Showed me exactly why I was stalling at the close."</em></li>
+            <li style={{ fontSize: 13, color: colors.darkGray, lineHeight: 1.6, marginBottom: 6 }}>📈 <em>"More useful than a full day of training."</em></li>
+          </ul>
+          <p style={{ fontSize: 12, color: colors.midGray, marginTop: 10, marginBottom: 0 }}>
+            Based on feedback from sales professionals across medical, automotive, real estate, software, and corporate industries.
+          </p>
+        </div>
         <form onSubmit={handleSubmit} noValidate>
           {field('fullName', 'Full Name', 'text', 'Your full name')}
           {field('email', 'Email Address', 'email', 'your@email.com')}
@@ -79,17 +90,6 @@ export default function ContactCapture({ onSubmit }) {
           <p style={{ textAlign: 'center', fontSize: 14, color: '#dc2626', fontWeight: 700, marginBottom: 16 }}>
             ⚡ Limited time: 33% off expires June 17
           </p>
-          <div style={{ background: '#f8f8f8', border: '1px solid #e5e7eb', borderRadius: 10, padding: '16px 20px', marginBottom: 20 }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: colors.black, marginBottom: 10 }}>Results sales professionals experience:</p>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              <li style={{ fontSize: 13, color: colors.darkGray, lineHeight: 1.6, marginBottom: 6 }}>💡 "Identified gaps I didn't know I had — after 14 years in sales."</li>
-              <li style={{ fontSize: 13, color: colors.darkGray, lineHeight: 1.6, marginBottom: 6 }}>🎯 "Showed me exactly why I was stalling at the close."</li>
-              <li style={{ fontSize: 13, color: colors.darkGray, lineHeight: 1.6, marginBottom: 6 }}>📈 "More useful than a full day of training."</li>
-            </ul>
-            <p style={{ fontSize: 12, color: colors.midGray, marginTop: 10, marginBottom: 0 }}>
-              Based on feedback from sales professionals across medical, automotive, real estate, software, and corporate industries.
-            </p>
-          </div>
           <button type="submit" style={styles.btnPrimary} disabled={loading}>
             {loading ? 'Please wait...' : 'Find My Sales Blind Spots →'}
           </button>
