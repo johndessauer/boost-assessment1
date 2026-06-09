@@ -51,8 +51,10 @@ export default function ContactCapture({ onSubmit }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
           <div style={{ width: 4, height: 48, background: '#84cc16', borderRadius: 2 }} />
           <div>
-            <h1 style={styles.h1}>Find Your Sales Blind Spots</h1>
-            <p style={{ fontSize: 15, color: colors.darkGray }}>Your personalized BOOST Blueprint Report starts here.</p>
+            <h1 style={styles.h1}>You Clicked to Prove It. Now Let's Find Out.</h1>
+            <p style={{ fontSize: 15, color: '#16a34a', fontWeight: 600, marginTop: 6 }}>
+              Only the <strong>top 5%</strong> of sales pros score an <strong>"Elite"</strong> ranking on this assessment. Are you one of them — or are you leaving commissions on the table?
+            </p>
           </div>
         </div>
         <p style={{ fontSize: 13, color: colors.darkGray, marginBottom: 16, marginLeft: 16, lineHeight: 1.5 }}>
