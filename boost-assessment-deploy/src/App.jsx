@@ -6,6 +6,13 @@ import ThankYou from './components/ThankYou.jsx'
 
 const STEPS = { CONTACT: 'contact', PAYMENT: 'payment', ASSESSMENT: 'assessment', DONE: 'done' }
 
+const STEP_PATHS = {
+  contact: '/contact',
+  payment: '/payment',
+  assessment: '/assessment',
+  done: '/thankyou',
+}
+
 export default function App() {
   const [step, setStep] = useState(STEPS.CONTACT)
   const [contact, setContact] = useState(null)
@@ -25,6 +32,16 @@ export default function App() {
     }
   }, [])
 
+  // Fire GA4 virtual page view on every step change
+  useEffect(() => {
+    if (typeof gtag === 'function') {
+      gtag('event', 'page_view', {
+        page_path: STEP_PATHS[step],
+        page_title: step.charAt(0).toUpperCase() + step.slice(1),
+      })
+    }
+  }, [step])
+
   const handleContactSubmit = (data) => {
     sessionStorage.setItem('boost_contact', JSON.stringify(data))
     setContact(data)
@@ -43,7 +60,6 @@ export default function App() {
     }, 1000)
   }
 
-  // For testing: if no contact, use default
   const activeContact = contact || { fullName: 'Test User', email: 'test@example.com', phone: '555-0000' }
 
   return (
