@@ -6,6 +6,7 @@ const stripePromise = loadStripe('pk_live_51KGmaCD3UPBMwUPOTfRaCtroBU0OpQeVtMfqu
 
 const BYPASS_CODE = import.meta.env.VITE_BYPASS_CODE || ''
 const PROMO_CODE = 'BOOST67'
+const GUARANTEE_BADGE = 'https://raw.githubusercontent.com/johndessauer/boost-assessment1/main/boost-assessment-deploy/Public%3AMoney%20Back%20Guarantee%20Badge%20Seal.png'
 
 export default function PaymentGate({ contact, onSuccess }) {
   const [loading, setLoading] = useState(false)
@@ -13,7 +14,6 @@ export default function PaymentGate({ contact, onSuccess }) {
   const [promoCode, setPromoCode] = useState('BOOST67')
   const [isPromoApplied, setIsPromoApplied] = useState(true)
 
-  // Auto-apply BOOST67 if any UTM param is present in the URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const hasUTM = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].some(p => params.get(p))
@@ -23,7 +23,6 @@ export default function PaymentGate({ contact, onSuccess }) {
     }
   }, [])
 
-  // Check for payment success redirect from Stripe
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const sessionId = params.get('session_id')
@@ -98,34 +97,23 @@ export default function PaymentGate({ contact, onSuccess }) {
             </div>
           )}
           <ul style={{ paddingLeft: 20, margin: 0 }}>
-            {[
-              'Personality profile + secondary color analysis',
-              'BOOST skill scores across all 5 pillars',
-              'Personalized diagnosis — where wiring meets skill gap',
-              'Custom BOOST Playbook with actionable steps',
-              'Program recommendation tailored to your profile',
-            ].map(item => (
-              <li key={item} style={{ fontSize: 13, color: colors.darkGray, marginBottom: 4 }}>{item}</li>
-            ))}
+            <li style={{ fontSize: 13, color: colors.darkGray, marginBottom: 4 }}>Personality profile + secondary color analysis</li>
+            <li style={{ fontSize: 13, color: colors.darkGray, marginBottom: 4 }}>BOOST skill scores across all 5 pillars</li>
+            <li style={{ fontSize: 13, color: colors.darkGray, marginBottom: 4 }}>Personalized diagnosis — where wiring meets skill gap</li>
+            <li style={{ fontSize: 13, color: colors.darkGray, marginBottom: 4 }}>Custom BOOST Playbook with actionable steps</li>
+            <li style={{ fontSize: 13, color: colors.darkGray, marginBottom: 4 }}>Program recommendation tailored to your profile</li>
           </ul>
         </div>
 
         <div style={{ marginBottom: 20 }}>
           <label style={styles.label}>Promo Code (optional)</label>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <input
-              type="text"
-              placeholder="Enter promo code"
-              value={promoCode}
-              onChange={handlePromoChange}
-              style={{
-                ...styles.input,
-                marginBottom: 0,
-                flex: 1,
-                borderColor: isPromoApplied ? '#16a34a' : colors.border,
-              }}
-            />
-          </div>
+          <input
+            type="text"
+            placeholder="Enter promo code"
+            value={promoCode}
+            onChange={handlePromoChange}
+            style={{ ...styles.input, marginBottom: 0, borderColor: isPromoApplied ? '#16a34a' : colors.border }}
+          />
         </div>
 
         {error && (
@@ -144,7 +132,14 @@ export default function PaymentGate({ contact, onSuccess }) {
           {loading ? 'Redirecting to secure checkout...' : `🔒  Pay ${isPromoApplied ? '$67' : '$97'} & Start Assessment`}
         </button>
 
-        <p style={{ textAlign: 'center', fontSize: 12, color: colors.midGray, marginTop: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 16, marginBottom: 8 }}>
+          <img src={GUARANTEE_BADGE} alt="100% Money Back Guarantee" style={{ width: 100, height: 100, objectFit: 'contain', marginBottom: 8 }} />
+          <p style={{ textAlign: 'center', fontSize: 12, color: colors.midGray, margin: 0, maxWidth: 280 }}>
+            100% Money Back Guarantee — If you don't find value in your report, we'll make it right.
+          </p>
+        </div>
+
+        <p style={{ textAlign: 'center', fontSize: 12, color: colors.midGray, marginTop: 8 }}>
           Secured by Stripe. Your report will be emailed to <strong>{contact?.email}</strong> within minutes of completing the assessment.
         </p>
       </div>
