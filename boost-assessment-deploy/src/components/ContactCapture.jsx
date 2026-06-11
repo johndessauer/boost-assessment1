@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Header, StepIndicator, styles, colors } from '../styles.jsx'
 
+const GUARANTEE_BADGE = 'https://raw.githubusercontent.com/johndessauer/boost-assessment1/main/boost-assessment-deploy/Public%3AMoney%20Back%20Guarantee%20Badge%20Seal.png'
+
 export default function ContactCapture({ onSubmit }) {
   const [form, setForm] = useState({ fullName: '', email: '' })
   const [errors, setErrors] = useState({})
@@ -95,7 +97,13 @@ export default function ContactCapture({ onSubmit }) {
           <button type="submit" style={styles.btnPrimary} disabled={loading}>
             {loading ? 'Please wait...' : 'Find My Sales Blind Spots →'}
           </button>
-          <p style={{ textAlign: 'center', fontSize: 12, color: colors.midGray, marginTop: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 16, marginBottom: 8 }}>
+            <img src={GUARANTEE_BADGE} alt="100% Money Back Guarantee" style={{ width: 100, height: 100, objectFit: 'contain', marginBottom: 8 }} />
+            <p style={{ textAlign: 'center', fontSize: 12, color: colors.midGray, margin: 0, maxWidth: 280 }}>
+              100% Money Back Guarantee — If you don't find value in your report, we'll make it right.
+            </p>
+          </div>
+          <p style={{ textAlign: 'center', fontSize: 12, color: colors.midGray, marginTop: 8 }}>
             🔒 Your information is private and secure. We will never share or sell your data.
           </p>
         </form>
