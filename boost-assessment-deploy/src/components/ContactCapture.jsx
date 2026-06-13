@@ -94,6 +94,14 @@ export default function ContactCapture({ onSubmit }) {
           <p style={{ textAlign: 'center', fontSize: 14, color: '#dc2626', fontWeight: 700, marginBottom: 16 }}>
             ⚡ Limited time: 33% off expires June 17
           </p>
+          <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 10, padding: '14px 18px', marginBottom: 16 }}>
+            <p style={{ fontSize: 14, color: '#15803d', fontWeight: 700, marginBottom: 6 }}>
+              🎁 Order Before June 17 — Get a Free 15-Minute Personal Coaching Call with John Dessauer
+            </p>
+            <p style={{ fontSize: 13, color: '#166534', margin: 0, lineHeight: 1.5 }}>
+              Take the assessment, get your report, and John will personally walk you through your results and give you a specific action plan — at no extra charge.
+            </p>
+          </div>
           <button type="submit" style={styles.btnPrimary} disabled={loading}>
             {loading ? 'Please wait...' : 'Find My Sales Blind Spots →'}
           </button>
