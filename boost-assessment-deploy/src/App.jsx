@@ -13,13 +13,25 @@ const STEP_PATHS = {
   done: '/thankyou',
 }
 
+const FREE_ACCESS_CODES = ['equip']
+
 export default function App() {
   const [step, setStep] = useState(STEPS.CONTACT)
   const [contact, setContact] = useState(null)
   const [paymentIntent, setPaymentIntent] = useState(null)
+  const [freeAccess, setFreeAccess] = useState(false)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
+
+    // Check for free access code in URL
+    const accessCode = params.get('access')
+    if (accessCode && FREE_ACCESS_CODES.includes(accessCode.toLowerCase())) {
+      setFreeAccess(true)
+      sessionStorage.setItem('free_access', 'true')
+    }
+
+    // Check for returning Stripe session
     const sessionId = params.get('session_id')
     if (sessionId) {
       const savedContact = sessionStorage.getItem('boost_contact')
@@ -29,6 +41,11 @@ export default function App() {
       setPaymentIntent(sessionId)
       setStep(STEPS.ASSESSMENT)
       window.history.replaceState({}, '', window.location.pathname)
+    }
+
+    // Restore free access from session if page reloads
+    if (sessionStorage.getItem('free_access') === 'true') {
+      setFreeAccess(true)
     }
   }, [])
 
@@ -45,7 +62,13 @@ export default function App() {
   const handleContactSubmit = (data) => {
     sessionStorage.setItem('boost_contact', JSON.stringify(data))
     setContact(data)
-    setStep(STEPS.PAYMENT)
+    // Skip payment if free access code was used
+    if (freeAccess || sessionStorage.getItem('free_access') === 'true') {
+      setPaymentIntent('FREE_ACCESS')
+      setStep(STEPS.ASSESSMENT)
+    } else {
+      setStep(STEPS.PAYMENT)
+    }
   }
 
   const handlePaymentSuccess = (piId) => {
@@ -55,6 +78,7 @@ export default function App() {
 
   const handleAssessmentSubmit = () => {
     sessionStorage.removeItem('boost_contact')
+    sessionStorage.removeItem('free_access')
     setTimeout(() => {
       setStep(STEPS.DONE)
     }, 1000)
