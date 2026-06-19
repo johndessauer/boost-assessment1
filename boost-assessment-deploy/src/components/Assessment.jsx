@@ -21,6 +21,8 @@ export default function Assessment({ contact = { fullName: 'Test User', email: '
     Object.fromEntries(contextQuestions.map(q => [q.id, '']))
   )
 
+  const [phone, setPhone] = useState('')
+
   const validateP1 = () => {
     for (let i = 0; i < rankings.length; i++) {
       const vals = Object.values(rankings[i])
@@ -57,7 +59,7 @@ export default function Assessment({ contact = { fullName: 'Test User', email: '
       const res = await fetch('/.netlify/functions/submit-assessment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contact, paymentIntent, rankings, ratings, context }),
+        body: JSON.stringify({ contact: { ...contact, phone }, paymentIntent, rankings, ratings, context }),
       })
       
       if (!res.ok) {
@@ -121,6 +123,8 @@ export default function Assessment({ contact = { fullName: 'Test User', email: '
             contact={contact}
             context={context}
             setContext={setContext}
+            phone={phone}
+            setPhone={setPhone}
             onBack={() => { setError(''); setPart(PARTS.P2) }}
             onSubmit={() => {
               if (!validateP3()) { setError('Please answer all required questions.'); return }
@@ -299,7 +303,7 @@ function Part2({ ratings, setRatings, onBack, onNext, error }) {
   )
 }
 
-function Part3({ contact, context, setContext, onBack, onSubmit, submitting, error }) {
+function Part3({ contact, context, setContext, phone, setPhone, onBack, onSubmit, submitting, error }) {
   const setField = (id, val) => setContext(prev => ({ ...prev, [id]: val }))
 
   return (
@@ -342,6 +346,18 @@ function Part3({ contact, context, setContext, onBack, onSubmit, submitting, err
           )}
         </div>
       ))}
+
+      <div style={{ marginBottom: 20 }}>
+        <label style={styles.label}>Phone Number <span style={{ color: colors.midGray, fontWeight: 400 }}>(optional)</span></label>
+        <input
+          type="tel"
+          placeholder="Your phone number"
+          value={phone}
+          onChange={e => setPhone(e.target.value)}
+          style={{ ...styles.input, marginBottom: 0 }}
+          disabled={submitting}
+        />
+      </div>
 
       <div style={{ background: colors.lightGray, borderRadius: 8, padding: '14px 18px', marginTop: 8, marginBottom: 20, fontSize: 13, color: colors.darkGray }}>
         🎉 <strong>You're almost done!</strong> Click submit and your personalized BOOST Blueprint Report will be emailed to <strong>{contact && contact.email ? contact.email : 'your email'}</strong> within moments.
