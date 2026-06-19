@@ -74,8 +74,8 @@ export default function PaymentGate({ contact, onSuccess }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
           <div style={{ width: 4, height: 48, background: '#84cc16', borderRadius: 2 }} />
           <div>
-            <h1 style={styles.h1}>Complete Your Purchase — Offer Expires June 17</h1>
-            <p style={{ fontSize: 15, color: colors.darkGray }}>Welcome, {contact?.fullName?.split(' ')[0]}! Lock in your 33% discount before June 17 and get your personalized BOOST report within minutes.</p>
+            <h1 style={styles.h1}>Complete Your Purchase</h1>
+            <p style={{ fontSize: 15, color: colors.darkGray }}>Welcome, {contact?.fullName?.split(' ')[0]}! One step away from your personalized BOOST report.</p>
           </div>
         </div>
 
@@ -123,10 +123,6 @@ export default function PaymentGate({ contact, onSuccess }) {
         )}
 
         <div style={styles.divider} />
-
-        <p style={{ textAlign: 'center', fontSize: 14, color: '#dc2626', fontWeight: 700, marginBottom: 12 }}>
-          ⚡ $67 offer expires June 17 — regular price returns to $97
-        </p>
 
         <button onClick={handleCheckout} style={styles.btnPrimary} disabled={loading}>
           {loading ? 'Redirecting to secure checkout...' : `🔒  Pay ${isPromoApplied ? '$67' : '$97'} & Start Assessment`}
