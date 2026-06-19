@@ -63,7 +63,7 @@ export default function ContactCapture({ onSubmit }) {
           Built by <strong>John Dessauer</strong> — Sales strategist, author, and trainer to 1,200+ professionals across medical, automotive, real estate, software, and corporate sales.
         </p>
         <p style={{ fontSize: 14, color: '#16a34a', fontWeight: 600, marginBottom: 20, marginLeft: 16 }}>
-          $67 today with code BOOST67 (reg. $97) — offer expires June 17 · less than 10 minutes
+          $67 today with code BOOST67 (reg. $97) — takes less than 10 minutes
         </p>
         <div style={styles.infoBox}>
           <p style={{ fontSize: 14, color: colors.black, fontWeight: 700, marginBottom: 10 }}>What you'll receive:</p>
@@ -91,17 +91,6 @@ export default function ContactCapture({ onSubmit }) {
           {field('fullName', 'Full Name', 'text', 'Your full name')}
           {field('email', 'Email Address', 'email', 'your@email.com')}
           <div style={styles.divider} />
-          <p style={{ textAlign: 'center', fontSize: 14, color: '#dc2626', fontWeight: 700, marginBottom: 16 }}>
-            ⚡ Limited time: 33% off expires June 17
-          </p>
-          <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 10, padding: '14px 18px', marginBottom: 16 }}>
-            <p style={{ fontSize: 14, color: '#15803d', fontWeight: 700, marginBottom: 6 }}>
-              🎁 Order Before June 17 — Get a Free 15-Minute Personal Coaching Call with John Dessauer
-            </p>
-            <p style={{ fontSize: 13, color: '#166534', margin: 0, lineHeight: 1.5 }}>
-              Take the assessment, get your report, and John will personally walk you through your results and give you a specific action plan — at no extra charge.
-            </p>
-          </div>
           <button type="submit" style={styles.btnPrimary} disabled={loading}>
             {loading ? 'Please wait...' : 'Find My Sales Blind Spots →'}
           </button>
