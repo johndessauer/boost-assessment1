@@ -354,9 +354,11 @@ function Part3({ contact, context, setContext, phone, setPhone, onBack, onSubmit
           placeholder="Your phone number"
           value={phone}
           onChange={e => setPhone(e.target.value)}
-          style={{ ...styles.input, marginBottom: 0 }}
+          style={{ ...styles.input, marginBottom: 6 }}
           disabled={submitting}
-        />
+        /> <p style={{ fontSize: 12, color: colors.midGray, margin: 0 }}>
+          📱 Add your number and we'll text you as soon as your report is ready.
+        </p>
       </div>
 
       <div style={{ background: colors.lightGray, borderRadius: 8, padding: '14px 18px', marginTop: 8, marginBottom: 20, fontSize: 13, color: colors.darkGray }}>
