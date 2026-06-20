@@ -162,7 +162,7 @@ export default async (req) => {
 
   // Bypass code check — skip Stripe verification for complimentary access
   const bypassCode = process.env.BYPASS_CODE
-  const isBypass = paymentIntent === 'BYPASS' && bypassCode && bypassCode.length > 0
+  const isBypass = (paymentIntent === 'BYPASS' || paymentIntent === 'FREE_ACCESS') && bypassCode && bypassCode.length > 0
   console.log('Payment intent:', paymentIntent, '| Bypass:', isBypass)
 
   if (!isBypass) {
